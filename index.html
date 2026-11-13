@@ -2,9 +2,10 @@
 <html lang="si">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auto Care Sri Lanka - Complete</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Auto Care Sri Lanka</title>
   <meta name="theme-color" content="#dc2626" />
+  <link rel="manifest" href="/manifest.json" />
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +26,7 @@
   <script type="text/babel">
     const { useState, useMemo, useEffect } = React;
 
-    // 1. CUSTOM RED ROUNDED-SQUARE SVG LOGO
+    // 1. CUSTOM RED ROUNDED-SQUARE SVG LOGO + UPLOADED DISPLAY
     const DefaultRedVectorLogo = ({ className = 'w-11 h-11' }) => (
       <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" rx="22" fill="#DC2626"/>
@@ -37,6 +38,14 @@
       </svg>
     );
 
+    const AppLogoDisplay = ({ customLogoUrl, className = 'w-11 h-11' }) => {
+      if (customLogoUrl) {
+        return <img src={customLogoUrl} alt="Logo" className={`${className} object-cover rounded-2xl`} />;
+      }
+      return <DefaultRedVectorLogo className={className} />;
+    };
+
+    // 2. TRANSLATIONS (SINHALA / ENGLISH / TAMIL)
     const TRANSLATIONS = {
       si: {
         subtitle: 'දිවයින පුරා රිකවරි, ගරාජ්, ඉන්ධන සහ හදිසි වාහන සේවා',
@@ -45,11 +54,11 @@
         gpsBtnOn: '📍 GPS On කරන්න',
         gpsBtnUpdate: '📍 GPS යාවත්කාලීන කරන්න',
         gpsLoading: 'සොයමින්...',
-        navDirectory: 'සේවා සොයන්න',
-        navHotlines: 'හදිසි ඇමතුම්',
-        navAdd: 'අලුත් ස්ථානයක්',
+        navDirectory: 'සේවා',
+        navHotlines: 'හදිසි',
+        navAdd: 'Shop',
         navAdmin: 'Admin',
-        searchPlaceholder: 'ගරාජ්, රිකවරි, ඉන්ධන පිරවුම්හල් හෝ නගරය...',
+        searchPlaceholder: 'ගරාජ්, රිකවරි, ඉන්ධන හෝ නගරය සොයන්න...',
         allDistrictsLabel: 'සියලුම දිස්ත්‍රික්ක (25)',
         catHeading: 'සේවා වර්ගය',
         vehHeading: 'වාහන වර්ගය',
@@ -59,43 +68,109 @@
         mapsBtn: 'Maps',
         addTitle: 'අලුත් ස්ථානයක් එක් කරන්න',
         addSubtitle: 'ඔබගේ ගරාජය, රිකවරි රථය හෝ ඉන්ධන පිරවුම්හල ඇතුළත් කරන්න.',
-        submitBtn: 'Admin අනුමැතිය සඳහා යොමු කරන්න'
+        submitBtn: 'Admin අනුමැතිය සඳහා යොමු කරන්න',
+        authWelcome: 'Auto Care Sri Lanka වෙත සාදරයෙන් පිළිගනිමු',
+        authSubtitle: 'දිවයින පුරා රිකවරි, ගරාජ් සහ හදිසි සේවා ලබාගැනීමට පිවිසෙන්න',
+        continueGoogle: 'Continue with Google',
+        signInTab: 'Sign In',
+        signUpTab: 'Sign Up',
+        signOut: 'Sign Out'
+      },
+      en: {
+        subtitle: '24/7 Islandwide Recovery, Garages & Emergency Assistance',
+        gpsPrompt: 'Turn on Location (GPS) to find nearest garages & fuel sheds',
+        gpsActive: 'GPS Active — Sorted by nearest distance (km)!',
+        gpsBtnOn: '📍 GPS On',
+        gpsBtnUpdate: '📍 Refresh GPS',
+        gpsLoading: 'Locating...',
+        navDirectory: 'Services',
+        navHotlines: 'Hotlines',
+        navAdd: 'Shop',
+        navAdmin: 'Admin',
+        searchPlaceholder: 'Search garages, recovery, fuel or city...',
+        allDistrictsLabel: 'All Districts (25)',
+        catHeading: 'Service Categories',
+        vehHeading: 'Vehicle Type',
+        foundCount: 'Service Locations Found:',
+        callBtn: 'Call',
+        waBtn: 'WhatsApp',
+        mapsBtn: 'Maps',
+        addTitle: 'Add a New Service Location',
+        addSubtitle: 'Register your garage, recovery truck or fuel shed.',
+        submitBtn: 'Submit for Admin Approval',
+        authWelcome: 'Welcome to Auto Care Sri Lanka',
+        authSubtitle: 'Sign in to access 24/7 recovery, garages & roadside assistance',
+        continueGoogle: 'Continue with Google',
+        signInTab: 'Sign In',
+        signUpTab: 'Sign Up',
+        signOut: 'Sign Out'
+      },
+      ta: {
+        subtitle: 'இலங்கை முழுவதும் 24/7 மீட்பு, கேரேஜ், எரிபொருள் மற்றும் அவசர சேவைகள்',
+        gpsPrompt: 'அருகிலுள்ள கேரேஜ்கள் மற்றும் எரிபொருள் நிலையங்களைக் கண்டறிய GPS ஐ இயக்கவும்',
+        gpsActive: 'GPS செயலில் உள்ளது — தூரத்தின் அடிப்படையில் வரிசைப்படுத்தப்பட்டுள்ளது!',
+        gpsBtnOn: '📍 GPS இயக்கு',
+        gpsBtnUpdate: '📍 GPS புதுப்பி',
+        gpsLoading: 'தேடுகிறது...',
+        navDirectory: 'சேவைகள்',
+        navHotlines: 'அவசரம்',
+        navAdd: 'Shop',
+        navAdmin: 'Admin',
+        searchPlaceholder: 'கேரேஜ், டோவிங் அல்லது நகரத்தைத் தேடுங்கள்...',
+        allDistrictsLabel: 'அனைத்து மாவட்டங்களும் (25)',
+        catHeading: 'சேவை வகைகள்',
+        vehHeading: 'வாகன வகை',
+        foundCount: 'கண்டறியப்பட்ட சேவை இடங்கள்:',
+        callBtn: 'அழை',
+        waBtn: 'WhatsApp',
+        mapsBtn: 'வரைபடம்',
+        addTitle: 'புதிய சேவை இடத்தைச் சேர்க்கவும்',
+        addSubtitle: 'உங்கள் கேரேஜ் அல்லது மீட்பு வாகனத்தைச் சேர்க்கவும்.',
+        submitBtn: 'Admin அனுமதிக்கு சமர்ப்பிக்கவும்',
+        authWelcome: 'Auto Care Sri Lanka விற்கு வரவேற்கிறோம்',
+        authSubtitle: '24/7 மீட்பு மற்றும் வாகன சேவைகளைப் பெற உள்நுழையவும்',
+        continueGoogle: 'Continue with Google',
+        signInTab: 'Sign In',
+        signUpTab: 'Sign Up',
+        signOut: 'Sign Out'
       }
     };
 
     const SRI_LANKA_DISTRICTS = [
-      { id: 'all', si: 'සියලුම දිස්ත්‍රික්ක (25)' },
-      { id: 'Colombo', si: 'කොළඹ' }, { id: 'Gampaha', si: 'ගම්පහ' }, { id: 'Kalutara', si: 'කළුතර' },
-      { id: 'Kandy', si: 'මහනුවර' }, { id: 'Matale', si: 'මාතලේ' }, { id: 'Nuwara Eliya', si: 'නුවරඑළිය' },
-      { id: 'Galle', si: 'ගාල්ල' }, { id: 'Matara', si: 'මාතර' }, { id: 'Hambantota', si: 'හම්බන්තොට' },
-      { id: 'Jaffna', si: 'යාපනය' }, { id: 'Kilinochchi', si: 'කිලිනොච්චිය' }, { id: 'Mannar', si: 'මන්නාරම' },
-      { id: 'Vavuniya', si: 'වවුනියාව' }, { id: 'Mullaitivu', si: 'මුලතිව්' }, { id: 'Batticaloa', si: 'මඩකලපුව' },
-      { id: 'Ampara', si: 'අම්පාර' }, { id: 'Trincomalee', si: 'ත්‍රිකුණාමලය' }, { id: 'Kurunegala', si: 'කුරුණෑගල' },
-      { id: 'Puttalam', si: 'පුත්තලම' }, { id: 'Anuradhapura', si: 'අනුරාධපුරය' }, { id: 'Polonnaruwa', si: 'පොළොන්නරුව' },
-      { id: 'Badulla', si: 'බදුල්ල' }, { id: 'Monaragala', si: 'මොණරාගල' }, { id: 'Ratnapura', si: 'රත්නපුරය' }, { id: 'Kegalle', si: 'කෑගල්ල' }
+      { id: 'all', si: 'සියලුම දිස්ත්‍රික්ක (25)', en: 'All Districts', ta: 'அனைத்து மாவட்டங்களும்' },
+      { id: 'Colombo', si: 'කොළඹ', en: 'Colombo', ta: 'கொழும்பு' },
+      { id: 'Gampaha', si: 'ගම්පහ', en: 'Gampaha', ta: 'கம்பஹா' },
+      { id: 'Kalutara', si: 'කළුතර', en: 'Kalutara', ta: 'களுத்துறை' },
+      { id: 'Kandy', si: 'මහනුවර', en: 'Kandy', ta: 'கண்டி' },
+      { id: 'Matale', si: 'මාතලේ', en: 'Matale', ta: 'மாத்தளை' },
+      { id: 'Nuwara Eliya', si: 'නුවරඑළිය', en: 'Nuwara Eliya', ta: 'நுவரெலியா' },
+      { id: 'Galle', si: 'ගාල්ල', en: 'Galle', ta: 'காலி' },
+      { id: 'Matara', si: 'මාතර', en: 'Matara', ta: 'மாத்தறை' },
+      { id: 'Hambantota', si: 'හම්බන්තොට', en: 'Hambantota', ta: 'அம்பாந்தோட்டை' },
+      { id: 'Jaffna', si: 'යාපනය', en: 'Jaffna', ta: 'யாழ்ப்பாணம்' },
+      { id: 'Kurunegala', si: 'කුරුණෑගල', en: 'Kurunegala', ta: 'குருநாகல்' },
+      { id: 'Anuradhapura', si: 'අනුරාධපුරය', en: 'Anuradhapura', ta: 'அனுராதபுரம்' },
+      { id: 'Badulla', si: 'බදුල්ල', en: 'Badulla', ta: 'பதுளை' },
+      { id: 'Ratnapura', si: 'රත්නපුරය', en: 'Ratnapura', ta: 'இரத்தினபுரி' },
+      { id: 'Kegalle', si: 'කෑගල්ල', en: 'Kegalle', ta: 'கேகாலை' }
     ];
 
     const SERVICE_CATEGORIES = [
-      { id: 'all', si: 'සියලුම සේවා' },
-      { id: 'recovery', si: 'රිකවරි / ටෝවින් රථ' },
-      { id: 'mechanical', si: 'යාන්ත්‍රික ගරාජ්' },
-      { id: 'fuel', si: 'ඉන්ධන පිරවුම්හල් (Shed)' },
-      { id: 'tire', si: 'ටයර් සහ පැච්' },
-      { id: 'electrical', si: 'විදුලි සහ බැටරි' },
-      { id: 'ac', si: 'Vehicle AC Repair' },
-      { id: 'spare_parts', si: 'අමතර කොටස්' },
-      { id: 'car_wash', si: 'Car Wash' }
+      { id: 'all', si: 'සියලුම සේවා', en: 'All Services', ta: 'அனைத்து' },
+      { id: 'recovery', si: 'රිකවරි / ටෝවින්', en: 'Recovery / Towing', ta: 'மீட்பு' },
+      { id: 'mechanical', si: 'යාන්ත්‍රික ගරාජ්', en: 'Mechanical Garage', ta: 'கேரேஜ்' },
+      { id: 'fuel', si: 'ඉන්ධන පිරවුම්හල්', en: 'Fuel / Shed', ta: 'எரிபொருள்' },
+      { id: 'tire', si: 'ටයර් සහ පැච්', en: 'Tire & Punctures', ta: 'டயர்' },
+      { id: 'electrical', si: 'විදුලි සහ බැටරි', en: 'Auto Electrical', ta: 'மின்சாரம்' }
     ];
 
     const VEHICLE_TYPES = [
-      { id: 'all', si: 'සියලුම වාහන' },
-      { id: 'car', si: 'Car (කාර්)' },
-      { id: 'van', si: 'Van (වෑන්)' },
-      { id: 'motorcycle', si: 'Motorcycle (බයික්)' },
-      { id: 'three_wheel', si: 'ත්‍රීවීල් (Tuk)' },
-      { id: 'bus', si: 'බස් (Bus)' },
-      { id: 'lorry', si: 'ලොරි / Truck' },
-      { id: 'heavy', si: 'බර වාහන (Heavy)' }
+      { id: 'all', si: 'සියලුම වාහන', en: 'All Vehicles', ta: 'அனைத்து' },
+      { id: 'car', si: 'Car (කාර්)', en: 'Car', ta: 'கார்' },
+      { id: 'van', si: 'Van (වෑන්)', en: 'Van', ta: 'வேன்' },
+      { id: 'motorcycle', si: 'Motorcycle (බයික්)', en: 'Motorcycle', ta: 'மோட்டார்' },
+      { id: 'bus', si: 'බස් (Bus)', en: 'Bus', ta: 'பஸ்' },
+      { id: 'lorry', si: 'ලොරි / Truck', en: 'Lorry / Truck', ta: 'லாரி' }
     ];
 
     const EMERGENCY_HOTLINES = [
@@ -111,9 +186,9 @@
     ];
 
     const INITIAL_LISTINGS = [
-      { id: 'srv-01', name: 'Lanka Heavy Recovery & Crane Towing Service', category: 'recovery', vehicles: ['bus', 'lorry', 'heavy', 'van', 'car'], district: 'Colombo', address: 'High Level Road, Pannipitiya, Colombo', phone: '0771234567', whatsapp: '94771234567', is247: true, verified: true, rating: 4.9, status: 'approved', description: '24/7 Heavy Boom Truck, Hydraulic Flatbed Carrier & Crane Recovery for Buses and Lorries.' },
-      { id: 'srv-02', name: 'Kandy Hill Country 24/7 Towing & Recovery', category: 'recovery', vehicles: ['bus', 'lorry', 'heavy', 'car', 'van'], district: 'Kandy', address: 'Peradeniya Road, Mulgampola, Kandy', phone: '0714567890', whatsapp: '94714567890', is247: true, verified: true, rating: 4.8, status: 'approved', description: 'Specialized hill-country flatbed recovery across Kadugannawa and Kandy roads.' },
-      { id: 'srv-03', name: 'Ceypetco & Lanka IOC 24H Super Fuel Mart', category: 'fuel', vehicles: ['bus', 'lorry', 'heavy', 'car', 'van', 'three_wheel', 'motorcycle'], district: 'Colombo', address: 'Baseline Road, Borella, Colombo 08', phone: '0112684520', whatsapp: '94772233445', is247: true, verified: true, rating: 4.7, status: 'approved', description: '24-Hour Octane 92/95 Petrol, Super Diesel, Heavy Truck High-Speed Diesel Pumps.' }
+      { id: 'srv-01', name: 'Lanka Heavy Recovery & Crane Towing Service', category: 'recovery', vehicles: ['bus', 'lorry', 'van', 'car'], district: 'Colombo', address: 'High Level Road, Pannipitiya, Colombo', phone: '0771234567', whatsapp: '94771234567', is247: true, verified: true, rating: 4.9, status: 'approved', description: '24/7 Heavy Boom Truck, Hydraulic Flatbed Carrier & Crane Recovery for Buses and Lorries.', lat: 6.8478, lng: 79.9575 },
+      { id: 'srv-02', name: 'Kandy Hill Country 24/7 Towing & Recovery', category: 'recovery', vehicles: ['bus', 'lorry', 'car', 'van'], district: 'Kandy', address: 'Peradeniya Road, Mulgampola, Kandy', phone: '0714567890', whatsapp: '94714567890', is247: true, verified: true, rating: 4.8, status: 'approved', description: 'Specialized hill-country flatbed recovery across Kadugannawa and Kandy roads.', lat: 7.2835, lng: 80.6214 },
+      { id: 'srv-03', name: 'Ceypetco & Lanka IOC 24H Super Fuel Mart', category: 'fuel', vehicles: ['bus', 'lorry', 'car', 'van', 'motorcycle'], district: 'Colombo', address: 'Baseline Road, Borella, Colombo 08', phone: '0112684520', whatsapp: '94772233445', is247: true, verified: true, rating: 4.7, status: 'approved', description: '24-Hour Octane 92/95 Petrol, Super Diesel, Heavy Truck High-Speed Diesel Pumps.', lat: 6.9147, lng: 79.8778 }
     ];
 
     function calculateDistanceKm(lat1, lon1, lat2, lon2) {
@@ -126,385 +201,100 @@
     }
 
     function App() {
-      const t = TRANSLATIONS.si;
+      // 1. Language State
+      const [lang, setLang] = useState('si');
+      const t = TRANSLATIONS[lang] || TRANSLATIONS.si;
+      const handleCycleLanguage = () => {
+        setLang(prev => prev === 'si' ? 'en' : prev === 'en' ? 'ta' : 'si');
+      };
+
+      // 2. Mandatory User Auth State (Sign In / Sign Up Gate)
+      const [currentUser, setCurrentUser] = useState(() => {
+        try { const s = localStorage.getItem('autocare_sl_current_user'); return s ? JSON.parse(s) : null; } catch { return null; }
+      });
+      const [userAuthMode, setUserAuthMode] = useState('signin'); // 'signin' | 'signup'
+      const [userNameInput, setUserNameInput] = useState('');
+      const [userEmailInput, setUserEmailInput] = useState('');
+      const [userPassInput, setUserPassInput] = useState('');
+      const [userAuthError, setUserAuthError] = useState('');
+      const [showGoogleModal, setShowGoogleModal] = useState(false);
+      const [googleEmail, setGoogleEmail] = useState('');
+      const [googleName, setGoogleName] = useState('');
+
+      const completeUserSignIn = (userObj) => {
+        setCurrentUser(userObj);
+        try { localStorage.setItem('autocare_sl_current_user', JSON.stringify(userObj)); } catch {}
+      };
+
+      const handleUserSignOut = () => {
+        setCurrentUser(null);
+        setLoggedInAdmin(null);
+        try { localStorage.removeItem('autocare_sl_current_user'); } catch {}
+      };
+
+      const handleGoogleSubmit = (e) => {
+        e.preventDefault();
+        if (!googleEmail.includes('@')) {
+          setUserAuthError('කරුණාකර නිවැරදි Gmail ලිපිනයක් ඇතුළත් කරන්න.');
+          return;
+        }
+        completeUserSignIn({
+          name: googleName.trim() || googleEmail.split('@')[0],
+          email: googleEmail.trim().toLowerCase(),
+          provider: 'google'
+        });
+        setShowGoogleModal(false);
+      };
+
+      const handleEmailAuthSubmit = (e) => {
+        e.preventDefault();
+        setUserAuthError('');
+        const email = userEmailInput.trim().toLowerCase();
+        const pass = userPassInput.trim();
+
+        // Check if admin login directly
+        const matchedAdmin = ALLOWED_ADMINS.find(a => a.email.toLowerCase() === email && a.pass === pass);
+        if (matchedAdmin) {
+          completeUserSignIn({ name: matchedAdmin.name, email: matchedAdmin.email, provider: 'admin' });
+          setLoggedInAdmin(matchedAdmin);
+          return;
+        }
+
+        let storedUsers = [];
+        try { storedUsers = JSON.parse(localStorage.getItem('autocare_sl_users') || '[]'); } catch {}
+
+        if (userAuthMode === 'signup') {
+          if (!userNameInput.trim()) { setUserAuthError('නම ඇතුළත් කරන්න.'); return; }
+          const newUser = { name: userNameInput.trim(), email, pass };
+          try { localStorage.setItem('autocare_sl_users', JSON.stringify([...storedUsers, newUser])); } catch {}
+          completeUserSignIn({ name: newUser.name, email: newUser.email, provider: 'email' });
+        } else {
+          const found = storedUsers.find(u => u.email === email && u.pass === pass);
+          if (!found) {
+            setUserAuthError('Email හෝ Password වැරදියයි. Sign Up වන්න.');
+            return;
+          }
+          completeUserSignIn({ name: found.name, email: found.email, provider: 'email' });
+        }
+      };
+
+      // 3. Navigation & App States
       const [activeNav, setActiveNav] = useState('directory'); // 'directory' | 'hotlines' | 'admin'
       
       const [customLogoUrl, setCustomLogoUrl] = useState(() => {
         try { return localStorage.getItem('autocare_sl_custom_logo') || ''; } catch { return ''; }
       });
+      const [logoStatusMsg, setLogoStatusMsg] = useState('');
 
-      const [listings, setListings] = useState(() => {
-        try { const s = localStorage.getItem('autocare_sl_listings_v4'); return s ? JSON.parse(s) : INITIAL_LISTINGS; } catch { return INITIAL_LISTINGS; }
-      });
-
-      useEffect(() => {
-        try { localStorage.setItem('autocare_sl_listings_v4', JSON.stringify(listings)); } catch {}
-      }, [listings]);
-
-      const [searchQuery, setSearchQuery] = useState('');
-      const [selectedDistrict, setSelectedDistrict] = useState('all');
-      const [selectedCategory, setSelectedCategory] = useState('all');
-      const [selectedVehicle, setSelectedVehicle] = useState('all');
-      const [only247, setOnly247] = useState(false);
-
-      // GPS State
-      const [userCoords, setUserCoords] = useState(null);
-      const [gpsStatus, setGpsStatus] = useState('idle');
-      const [gpsLabel, setGpsLabel] = useState('');
-
-      const handleEnableGPS = () => {
-        if (!navigator.geolocation) {
-          setUserCoords({ lat: 6.9271, lng: 79.8612 });
-          setGpsLabel('Colombo');
-          setGpsStatus('active');
-          return;
-        }
-        setGpsStatus('loading');
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-            setGpsLabel('ජීපීඑස් සක්‍රීයයි');
-            setGpsStatus('active');
-          },
-          () => {
-            setUserCoords({ lat: 6.9271, lng: 79.8612 });
-            setGpsLabel('Colombo');
-            setGpsStatus('active');
+      const handleSaveLogo = (dataUrl) => {
+        setCustomLogoUrl(dataUrl);
+        try {
+          if (dataUrl) {
+            localStorage.setItem('autocare_sl_custom_logo', dataUrl);
+            setLogoStatusMsg('Logo එක සාර්ථකව වෙනස් විය!');
+          } else {
+            localStorage.removeItem('autocare_sl_custom_logo');
+            setLogoStatusMsg('Default Logo එකට මාරු කරන ලදී.');
           }
-        );
-      };
-
-      // Admin Auth State
-      const [loggedInAdmin, setLoggedInAdmin] = useState(null);
-      const [showAdminModal, setShowAdminModal] = useState(false);
-      const [adminEmail, setAdminEmail] = useState('');
-      const [adminPassword, setAdminPassword] = useState('');
-      const [adminAuthError, setAdminAuthError] = useState('');
-
-      const handleAdminLogin = (e) => {
-        e.preventDefault();
-        setAdminAuthError('');
-        const matched = ALLOWED_ADMINS.find(a => a.email.toLowerCase() === adminEmail.trim().toLowerCase() && a.pass === adminPassword);
-        if (matched) {
-          setLoggedInAdmin(matched);
-          setShowAdminModal(false);
-          setActiveNav('admin');
-          setAdminEmail(''); setAdminPassword('');
-        } else {
-          setAdminAuthError('වැරදි Email එකක් හෝ Password එකකි.');
-        }
-      };
-
-      // Add Shop Form State
-      const [showAddModal, setShowAddModal] = useState(false);
-      const [formName, setFormName] = useState('');
-      const [formCategory, setFormCategory] = useState('recovery');
-      const [formVehicles, setFormVehicles] = useState(['car', 'van']);
-      const [formDistrict, setFormDistrict] = useState('Colombo');
-      const [formAddress, setFormAddress] = useState('');
-      const [formPhone, setFormPhone] = useState('');
-      const [formWhatsapp, setFormWhatsapp] = useState('');
-      const [formIs247, setFormIs247] = useState(true);
-      const [formDesc, setFormDesc] = useState('');
-      const [formToast, setFormToast] = useState('');
-
-      const toggleFormVehicle = (vId) => {
-        setFormVehicles(prev => prev.includes(vId) ? prev.filter(v => v !== vId) : [...prev, vId]);
-      };
-
-      const handleAddSubmit = (e) => {
-        e.preventDefault();
-        if (!formName || !formAddress || !formPhone) return;
-
-        const newShop = {
-          id: `srv-${Date.now()}`,
-          name: formName.trim(),
-          category: formCategory,
-          vehicles: formVehicles,
-          district: formDistrict,
-          address: formAddress.trim(),
-          phone: formPhone.trim(),
-          whatsapp: formWhatsapp.trim() || formPhone.trim(),
-          lat: 6.9271, lng: 79.8612,
-          is247: formIs247,
-          verified: false,
-          rating: 5.0,
-          status: loggedInAdmin ? 'approved' : 'pending',
-          description: formDesc.trim() || 'වාහන හදිසි සහන සහ සේවා මධ්‍යස්ථානය.'
-        };
-
-        setListings([newShop, ...listings]);
-        setFormToast(loggedInAdmin ? 'සේවා ස්ථානය සාර්ථකව එකතු විය!' : 'සාර්ථකයි! Admin අනුමැතියෙන් පසු ප්‍රදර්ශනය කෙරේ.');
-        setTimeout(() => {
-          setFormToast('');
-          setShowAddModal(false);
-          setFormName(''); setFormAddress(''); setFormPhone(''); setFormWhatsapp(''); setFormDesc('');
-        }, 2000);
-      };
-
-      const handleApprove = (id) => {
-        setListings(listings.map(item => item.id === id ? {...item, status: 'approved', verified: true} : item));
-      };
-
-      const handleDelete = (id) => {
-        if (confirm('මෙම සේවාව ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?')) {
-          setListings(listings.filter(item => item.id !== id));
-        }
-      };
-
-      const filteredListings = useMemo(() => {
-        return listings
-          .filter(item => {
-            if (item.status !== 'approved' && !loggedInAdmin) return false;
-            if (only247 && !item.is247) return false;
-            if (selectedDistrict !== 'all' && item.district !== selectedDistrict) return false;
-            if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
-            if (selectedVehicle !== 'all' && !item.vehicles.includes(selectedVehicle)) return false;
-            if (searchQuery.trim() !== '') {
-              const q = searchQuery.toLowerCase();
-              if (!item.name.toLowerCase().includes(q) && !item.address.toLowerCase().includes(q) && !item.district.toLowerCase().includes(q)) return false;
-            }
-            return true;
-          })
-          .map(item => {
-            const distanceKm = userCoords ? calculateDistanceKm(userCoords.lat, userCoords.lng, item.lat, item.lng) : null;
-            return { ...item, distanceKm };
-          })
-          .sort((a, b) => {
-            if (userCoords && a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
-            return b.rating - a.rating;
-          });
-      }, [listings, only247, selectedDistrict, selectedCategory, selectedVehicle, searchQuery, userCoords, loggedInAdmin]);
-
-      const pendingListings = useMemo(() => listings.filter(item => item.status === 'pending'), [listings]);
-
-      return (
-        <div className="min-h-screen bg-slate-950 text-slate-100">
-          
-          {/* Top Bar */}
-          <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-xl">
-            <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
-              <div onClick={() => setActiveNav('directory')} className="flex items-center gap-2.5 cursor-pointer">
-                <DefaultRedVectorLogo customLogoUrl={customLogoUrl} className="w-10 h-10 rounded-2xl shadow-lg shadow-red-600/25" />
-                <div>
-                  <h1 className="text-sm sm:text-base font-black tracking-tight text-white">AUTO CARE <span className="text-red-500">SRI LANKA</span></h1>
-                  <p className="text-[10px] text-slate-400">24/7 Islandwide Recovery & Garages</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button onClick={() => setActiveNav('directory')} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${activeNav === 'directory' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>සේවා</button>
-                <button onClick={() => setActiveNav('hotlines')} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${activeNav === 'hotlines' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>හදිසි</button>
-                <button onClick={() => setShowAddModal(true)} className="px-3 py-1.5 rounded-xl bg-slate-800 text-red-400 text-xs font-bold">➕ Shop</button>
-                <button onClick={() => { if(loggedInAdmin) setActiveNav('admin'); else setShowAdminModal(true); }} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${activeNav === 'admin' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-amber-400'}`}>
-                  ⚙️ Admin {pendingListings.length > 0 && `(${pendingListings.length})`}
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
-            
-            {/* GPS Proximity Banner */}
-            <div className={`p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 ${userCoords ? 'bg-emerald-950/60 border-emerald-500/40' : 'bg-blue-950/60 border-blue-500/40'}`}>
-              <span className="text-xs font-bold text-slate-200">{userCoords ? t.gpsActive : t.gpsPrompt}</span>
-              <button onClick={handleEnableGPS} className={`px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow ${userCoords ? 'bg-emerald-600' : 'bg-blue-600'}`}>
-                {gpsStatus === 'loading' ? t.gpsLoading : (userCoords ? t.gpsBtnUpdate : t.gpsBtnOn)}
-              </button>
-            </div>
-
-            {/* DIRECTORY VIEW */}
-            {activeNav === 'directory' && (
-              <div className="space-y-4">
-                
-                {/* Search & Filters */}
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-lg">
-                  <input 
-                    type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t.searchPlaceholder}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500"
-                  />
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white">
-                      {SRI_LANKA_DISTRICTS.map(d => <option key={d.id} value={d.id}>{d.si}</option>)}
-                    </select>
-
-                    <select value={selectedVehicle} onChange={(e) => setSelectedVehicle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white">
-                      {VEHICLE_TYPES.map(v => <option key={v.id} value={v.id}>{v.si}</option>)}
-                    </select>
-                  </div>
-
-                  {/* Categories Pills */}
-                  <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    {SERVICE_CATEGORIES.map(cat => (
-                      <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${selectedCategory === cat.id ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
-                        {cat.si}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Results count & cards */}
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-xs text-slate-400 font-semibold">{t.foundCount} <span className="text-white font-bold">{filteredListings.length}</span></span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {filteredListings.map(shop => (
-                    <div key={shop.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 uppercase">{shop.category}</span>
-                          {shop.distanceKm !== null && <span className="text-[11px] font-extrabold text-amber-400">📍 {shop.distanceKm} km</span>}
-                        </div>
-                        <h3 className="text-base font-extrabold text-white">{shop.name}</h3>
-                        <p className="text-xs text-slate-400 mt-1">📍 {shop.district} • {shop.address}</p>
-                        <p className="text-xs text-slate-300 mt-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">{shop.description}</p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800">
-                        <a href={`tel:${shop.phone}`} className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl text-center shadow">
-                          📞 {shop.phone}
-                        </a>
-                        <a href={`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs py-2.5 rounded-xl text-center">
-                          🗺️ Map
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* HOTLINES VIEW */}
-            {activeNav === 'hotlines' && (
-              <div className="space-y-3.5">
-                <div className="bg-red-950/50 border border-red-800 p-4 rounded-2xl text-center">
-                  <h2 className="text-base font-bold text-red-400">හදිසි ආපදා සහ ආරක්ෂක අංක</h2>
-                  <p className="text-xs text-slate-300 mt-1">ක්ෂණිකව ඇමතුමක් ලබා ගැනීමට පහත අංක ඔබන්න</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {EMERGENCY_HOTLINES.map(h => (
-                    <a key={h.id} href={`tel:${h.number}`} className={`bg-gradient-to-br ${h.color} p-4 rounded-2xl shadow-lg flex justify-between items-center`}>
-                      <div>
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-black/30 text-white">{h.badge}</span>
-                        <p className="font-bold text-base mt-1 text-white">{h.titleSi}</p>
-                        <p className="text-xs text-white/80">{h.desc}</p>
-                      </div>
-                      <span className="bg-white text-slate-950 font-black text-xl px-4 py-2 rounded-xl shadow shrink-0 ml-3">{h.number}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ADMIN PANEL VIEW */}
-            {activeNav === 'admin' && loggedInAdmin && (
-              <div className="space-y-4">
-                <div className="bg-slate-900 border border-amber-500/40 rounded-2xl p-4 flex justify-between items-center">
-                  <div>
-                    <h2 className="text-sm font-bold text-amber-400">⚙️ Admin Panel</h2>
-                    <p className="text-xs text-slate-400">লොග් වී ඇත්තේ: {loggedInAdmin.name}</p>
-                  </div>
-                  <button onClick={() => { setLoggedInAdmin(null); setActiveNav('directory'); }} className="px-3 py-1.5 rounded-xl bg-red-950 text-red-300 border border-red-800 text-xs font-bold">Logout</button>
-                </div>
-
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-                  <h3 className="text-sm font-bold text-white">Pending Verification Requests ({pendingListings.length})</h3>
-                  {pendingListings.length === 0 ? (
-                    <p className="text-xs text-slate-500 text-center py-4">අනුමැතිය සඳහා බලාපොරොත්තු වන ස්ථාන නොමැත.</p>
-                  ) : (
-                    pendingListings.map(item => (
-                      <div key={item.id} className="bg-slate-950 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
-                        <div>
-                          <p className="font-bold text-white">{item.name}</p>
-                          <p className="text-slate-400">{item.district} | {item.phone}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold">Approve</button>
-                          <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold">මකන්න</button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-          </div>
-
-          {/* ADD SHOP MODAL */}
-          {showAddModal && (
-            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-5 relative my-auto">
-                <button onClick={() => setShowAddModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white">✕</button>
-                <h2 className="text-base font-black text-red-500 mb-1">{t.addTitle}</h2>
-                <p className="text-xs text-slate-400 mb-4">{t.addSubtitle}</p>
-
-                {formToast && <div className="mb-3 p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 text-xs font-bold">{formToast}</div>}
-
-                <form onSubmit={handleAddSubmit} className="space-y-3 text-xs">
-                  <input type="text" required value={formName} onChange={e => setFormName(e.target.value)} placeholder="ආයතනයේ නම (උදා: Kandy Auto Care)" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <select value={formCategory} onChange={e => setFormCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
-                      {SERVICE_CATEGORIES.filter(c => c.id !== 'all').map(c => <option key={c.id} value={c.id}>{c.si}</option>)}
-                    </select>
-                    <select value={formDistrict} onChange={e => setFormDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
-                      {SRI_LANKA_DISTRICTS.filter(d => d.id !== 'all').map(d => <option key={d.id} value={d.id}>{d.si}</option>)}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 font-bold mb-1">සේවා සපයන වාහන වර්ග:</label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {VEHICLE_TYPES.filter(v => v.id !== 'all').map(v => {
-                        const checked = formVehicles.includes(v.id);
-                        return (
-                          <button type="button" key={v.id} onClick={() => toggleFormVehicle(v.id)} className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${checked ? 'bg-red-600 text-white border-red-500' : 'bg-slate-950 text-slate-400 border-slate-800'}`}>
-                            {checked ? '✓ ' : '+ '}{v.si}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <input type="text" required value={formAddress} onChange={e => setFormAddress(e.target.value)} placeholder="ලිපිනය (උදා: නුවර පාර, පේරාදෙණිය)" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  <input type="tel" required value={formPhone} onChange={e => setFormPhone(e.target.value)} placeholder="දුරකථන අංකය (උදා: 0812233445)" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  <textarea rows={2} value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="සේවා විස්තරය..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-
-                  <button type="submit" className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg transition">{t.submitBtn}</button>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* ADMIN LOGIN MODAL */}
-          {showAdminModal && (
-            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 relative">
-                <button onClick={() => setShowAdminModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white">✕</button>
-                <h3 className="text-base font-black text-white mb-1">Admin Security Portal</h3>
-                <p className="text-xs text-slate-400 mb-4">පරිපාලක විද්‍යුත් තැපෑල සහ මුරපදය ලබා දෙන්න.</p>
-
-                {adminAuthError && <div className="mb-3 p-2.5 rounded-xl bg-red-950 border border-red-500 text-red-200 text-xs font-semibold">{adminAuthError}</div>}
-
-                <form onSubmit={handleAdminLogin} className="space-y-3 text-xs">
-                  <input type="email" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="Admin Email" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  <input type="password" required value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  <button type="submit" className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow">Login</button>
-                </form>
-              </div>
-            </div>
-          )}
-
-        </div>
-      );
-    }
-
-    const container = document.getElementById('root');
-    const root = ReactDOM.createRoot(container);
-    root.render(<App />);
-  </script>
-</body>
-</html>
+        } catch {}
+        setTimeout(()
