@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="si">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Auto Care Sri Lanka</title>
-  <meta name="theme-color" content="#2563eb" />
+  <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="/manifest.json" />
   
   <!-- Tailwind CSS -->
@@ -15,80 +15,394 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-900 text-white font-sans">
-  <div id="root">ජනනය වෙමින් පවතී...</div>
+<body class="bg-slate-950 text-white font-sans antialiased">
+  <div id="root" class="flex items-center justify-center min-h-screen text-slate-400">
+    Auto Care Sri Lanka පූරණය වෙමින් පවතී...
+  </div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useMemo, useEffect } = React;
 
-    const servicesData = {
-      "කොළඹ": [
-        { name: "Colombo Auto Care & Hybrid Hub", type: "හයිබ්‍රිඩ් සහ එන්ජින් පරීක්ෂාව", phone: "0112345678" },
-        { name: "City Breakdown & Towing Service", type: "හදිසි සහන සහ ටෝවිං", phone: "0119876543" }
-      ],
-      "මහනුවර": [
-        { name: "Kandy Super Auto Repairs", type: "සාමාන්‍ය අලුත්වැඩියා සහ ටයර්", phone: "0812233445" },
-        { name: "Hill Country Emergency Help", type: "හදිසි මාර්ග ආධාර", phone: "0815566778" }
-      ],
-      "කෑගල්ල": [
-        { name: "Kegalle Auto Engineers", type: "එන්ජින් සහ විදුලි වැඩ", phone: "0352223344" },
-        { name: "Sabargamuwa Breakdown Service", type: "හදිසි සහන", phone: "0357788990" }
-      ]
-    };
+    const DISTRICTS = [
+      "සියලුම දිස්ත්‍රික්ක", "කොළඹ", "ගම්පහ", "කළුතර", "මහනුවර", "මාතලේ", "නුවරඑළිය",
+      "ගාල්ල", "මාතර", "හම්බන්තොට", "යාපනය", "කුරුණෑගල", "පුත්තලම",
+      "අනුරාධපුර", "පොළොන්නරුව", "බදුල්ල", "මොණරාගල", "රත්නපුර", "කෑගල්ල",
+      "මඩකලපුව", "අම්පාර", "ත්‍රිකුණාමලය", "වවුනියාව", "මන්නාරම", "කිලිනොච්චිය", "මුලතිව්"
+    ];
+
+    const CATEGORIES = [
+      { id: "all", label: "සියල්ල" },
+      { id: "garage", label: "ගෙරාජ්" },
+      { id: "breakdown", label: "බ්‍රේක්ඩවුන්" },
+      { id: "tyre", label: "ටයර්" },
+      { id: "parts", label: "අමතර කොටස්" }
+    ];
+
+    const INITIAL_SERVICES = [
+      { id: 1, name: "Colombo Hybrid & Auto Care", district: "කොළඹ", category: "garage", desc: "හයිබ්‍රිඩ් බැටරි, එන්ජින් ස්කෑන් සහ සම්පූර්ණ අලුත්වැඩියා", phone: "0112345678", address: "නුගේගොඩ, කොළඹ" },
+      { id: 2, name: "Expressway & City Towing 24/7", district: "කොළඹ", category: "breakdown", desc: "පැය 24 පුරා හදිසි ටෝවිං සහ වාහන ප්‍රවාහන සේවය", phone: "0771234567", address: "කඩවත / කොළඹ" },
+      { id: 3, name: "Kandy Hill-Country Auto Tech", district: "මහනුවර", category: "garage", desc: "ඩීසල් සහ පෙට්‍රල් එන්ජින්, ඒ.සී. සහ විදුලි පද්ධති අලුත්වැඩියා", phone: "0812233445", address: "පේරාදෙණිය පාර, මහනුවර" },
+      { id: 4, name: "Central Tyre & Alignment Hub", district: "මහනුවර", category: "tyre", desc: "3D වීල් එලයින්මන්ට්, ටයර් සහ බැටරි සේවාව", phone: "0814455667", address: "කටුගස්තොට, මහනුවර" },
+      { id: 5, name: "Kegalle Auto & Electricals", district: "කෑගල්ල", category: "garage", desc: "වාහන වයරින්, EFI ටියුන්-අප් සහ සාමාන්‍ය අලුත්වැඩියා", phone: "0352223344", address: "කොළඹ පාර, කෑගල්ල" }
+    ];
+
+    const EMERGENCY_NUMBERS = [
+      { label: "පොලිස් හදිසි ඇමතුම්", number: "119", color: "bg-red-600" },
+      { label: "සුවසැරිය ගිලන් රථ", number: "1990", color: "bg-emerald-600" },
+      { label: "ගිනි නිවන සේවා", number: "110", color: "bg-orange-600" },
+      { label: "අධිවේගී මාර්ග සහන", number: "1969", color: "bg-blue-600" }
+    ];
 
     function App() {
-      const [selectedDistrict, setSelectedDistrict] = useState("කොළඹ");
+      const [activeTab, setActiveTab] = useState("services"); // 'services' | 'emergency' | 'admin'
+      const [services, setServices] = useState(() => {
+        const saved = localStorage.getItem("autocare_services");
+        return saved ? JSON.parse(saved) : INITIAL_SERVICES;
+      });
+
+      const [selectedDistrict, setSelectedDistrict] = useState("සියලුම දිස්ත්‍රික්ක");
+      const [selectedCategory, setSelectedCategory] = useState("all");
+      const [searchQuery, setSearchQuery] = useState("");
+
+      // Admin Form States
+      const [newName, setNewName] = useState("");
+      const [newDistrict, setNewDistrict] = useState("කොළඹ");
+      const [newCategory, setNewCategory] = useState("garage");
+      const [newDesc, setNewDesc] = useState("");
+      const [newPhone, setNewPhone] = useState("");
+      const [newAddress, setNewAddress] = useState("");
+
+      useEffect(() => {
+        localStorage.setItem("autocare_services", JSON.stringify(services));
+      }, [services]);
+
+      const filteredServices = useMemo(() => {
+        return services.filter((item) => {
+          const matchDistrict = selectedDistrict === "සියලුම දිස්ත්‍රික්ක" || item.district === selectedDistrict;
+          const matchCategory = selectedCategory === "all" || item.category === selectedCategory;
+          const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              item.address.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchDistrict && matchCategory && matchSearch;
+        });
+      }, [services, selectedDistrict, selectedCategory, searchQuery]);
+
+      const openGoogleMaps = (query) => {
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query + " Sri Lanka")}`;
+        window.open(url, "_blank");
+      };
+
+      const handleAddService = (e) => {
+        e.preventDefault();
+        if (!newName || !newPhone || !newAddress) {
+          alert("කරුණාකර නම, දුරකථන අංකය සහ ලිපින ඇතුළත් කරන්න!");
+          return;
+        }
+
+        const newServiceObj = {
+          id: Date.now(),
+          name: newName,
+          district: newDistrict,
+          category: newCategory,
+          desc: newDesc || "වාහන සේවා මධ්‍යස්ථානය",
+          phone: newPhone,
+          address: newAddress
+        };
+
+        setServices([newServiceObj, ...services]);
+        setNewName("");
+        setNewDesc("");
+        setNewPhone("");
+        setNewAddress("");
+        alert("සේවා ස්ථානය සාර්ථකව එකතු කරන ලදී!");
+        setActiveTab("services");
+      };
+
+      const handleDeleteService = (id) => {
+        if (confirm("මෙම සේවා ස්ථානය ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?")) {
+          setServices(services.filter(s => s.id !== id));
+        }
+      };
 
       return (
-        <div className="min-h-screen bg-slate-900 text-white p-4 pb-12">
-          <div className="max-w-md mx-auto">
-            {/* Header */}
-            <div className="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 text-center mb-6">
-              <h1 className="text-2xl font-bold text-red-500 mb-1">Auto Care Sri Lanka</h1>
-              <p className="text-slate-300 text-sm">පරිපූර්ණ වාහන සේවා සහ හදිසි සහන යෙදුම</p>
+        <div className="min-h-screen bg-slate-950 text-white pb-20">
+          {/* Top App Bar */}
+          <div className="bg-slate-900 border-b border-slate-800 sticky top-0 z-10 px-4 py-4 shadow-md">
+            <div className="max-w-md mx-auto flex justify-between items-center">
+              <div>
+                <h1 className="text-lg font-extrabold text-red-500 tracking-tight">Auto Care Sri Lanka</h1>
+                <p className="text-[11px] text-slate-400">වාහන සේවා සහ හදිසි මාර්ග සහන</p>
+              </div>
+              <div className="flex gap-1.5">
+                <button 
+                  onClick={() => setActiveTab(activeTab === "emergency" ? "services" : "emergency")}
+                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold shadow transition ${
+                    activeTab === "emergency" ? "bg-slate-700 text-white" : "bg-red-600 text-white animate-pulse"
+                  }`}
+                >
+                  {activeTab === "emergency" ? "🏠 මුල් පිටුව" : "🚨 හදිසි"}
+                </button>
+                <button 
+                  onClick={() => setActiveTab(activeTab === "admin" ? "services" : "admin")}
+                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold shadow transition ${
+                    activeTab === "admin" ? "bg-red-600 text-white" : "bg-slate-800 text-slate-300 border border-slate-700"
+                  }`}
+                >
+                  {activeTab === "admin" ? "🏠 සේවා" : "⚙️ Admin"}
+                </button>
+              </div>
             </div>
+          </div>
 
-            {/* Emergency Hotline Banner */}
-            <div className="bg-red-600 p-4 rounded-xl shadow-lg mb-6 text-center">
-              <h2 className="font-bold text-lg mb-1">🚨 හදිසි ඇමතුම් (Emergency)</h2>
-              <p className="text-sm mb-2">පොලිසිය / ගිනි නිවන / ඇඹුලන්ස්</p>
-              <a href="tel:119" className="inline-block bg-white text-red-600 font-bold py-2 px-6 rounded-lg shadow hover:bg-slate-100 transition">
-                අමතන්න: 119
-              </a>
-            </div>
-
-            {/* District Selector */}
-            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6">
-              <label className="block text-sm font-semibold mb-2 text-slate-300">දිස්ත්‍රික්කය තෝරන්න:</label>
-              <select 
-                value={selectedDistrict} 
-                onChange={(e) => setSelectedDistrict(e.target.value)}
-                className="w-full bg-slate-900 text-white border border-slate-700 rounded-xl p-3 focus:outline-none focus:border-red-500"
-              >
-                {Object.keys(servicesData).map((district) => (
-                  <option key={district} value={district}>{district}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Services List */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-slate-200">{selectedDistrict} දිස්ත්‍රික්කයේ සේවා</h3>
-              {servicesData[selectedDistrict].map((service, index) => (
-                <div key={index} className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-bold text-white">{service.name}</h4>
-                    <p className="text-xs text-slate-400">{service.type}</p>
-                  </div>
-                  <a 
-                    href={`tel:${service.phone}`} 
-                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition"
-                  >
-                    ඇමතුම්
-                  </a>
+          <div className="max-w-md mx-auto p-4">
+            {activeTab === "emergency" ? (
+              /* Emergency View */
+              <div className="space-y-4">
+                <div className="bg-red-950/50 border border-red-800 p-4 rounded-2xl text-center">
+                  <h2 className="text-lg font-bold text-red-400">හදිසි ආපදා සහ ආරක්ෂක අංක</h2>
+                  <p className="text-xs text-slate-300 mt-1">ක්ෂණිකව ඇමතුමක් ලබා ගැනීමට පහත අංක ඔබන්න</p>
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {EMERGENCY_NUMBERS.map((em, idx) => (
+                    <a 
+                      key={idx} 
+                      href={`tel:${em.number}`}
+                      className={`${em.color} p-4 rounded-2xl shadow-lg flex justify-between items-center active:scale-95 transition`}
+                    >
+                      <div>
+                        <p className="font-bold text-base">{em.label}</p>
+                        <p className="text-xs opacity-90">පැය 24 පුරා ක්‍රියාත්මකයි</p>
+                      </div>
+                      <span className="bg-white text-slate-900 font-black text-xl px-4 py-2 rounded-xl shadow">
+                        {em.number}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => openGoogleMaps("Nearest Police Station or Hospital")}
+                  className="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl font-bold text-sm text-center hover:bg-slate-800 transition mt-4"
+                >
+                  📍 ළඟම ඇති පොලිස් ස්ථානය / රෝහල සිතියමෙන් බලන්න
+                </button>
+              </div>
+            ) : activeTab === "admin" ? (
+              /* Admin Panel View */
+              <div className="space-y-4">
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                  <h2 className="text-base font-bold text-red-500 mb-1">⚙️ Admin Panel - නව සේවාවක් එකතු කරන්න</h2>
+                  <p className="text-xs text-slate-400 mb-4">නව ගෙරාජයක් හෝ සේවා ස්ථානයක් මෙහි ඇතුළත් කරන්න.</p>
+
+                  <form onSubmit={handleAddService} className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">ආයතනයේ නම *</label>
+                      <input 
+                        type="text" 
+                        value={newName} 
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder="උදා: Peradeniya Auto Repairs" 
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-red-500"
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-slate-300 mb-1">දිස්ත්‍රික්කය</label>
+                        <select 
+                          value={newDistrict} 
+                          onChange={(e) => setNewDistrict(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-red-500"
+                        >
+                          {DISTRICTS.filter(d => d !== "සියලුම දිස්ත්‍රික්ක").map(d => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-300 mb-1">කාණ්ඩය</label>
+                        <select 
+                          value={newCategory} 
+                          onChange={(e) => setNewCategory(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-red-500"
+                        >
+                          {CATEGORIES.filter(c => c.id !== "all").map(c => (
+                            <option key={c.id} value={c.id}>{c.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">දුරකථන අංකය *</label>
+                      <input 
+                        type="text" 
+                        value={newPhone} 
+                        onChange={(e) => setNewPhone(e.target.value)}
+                        placeholder="0812233445" 
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-red-500"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">ලිපිනය / ස්ථානය *</label>
+                      <input 
+                        type="text" 
+                        value={newAddress} 
+                        onChange={(e) => setNewAddress(e.target.value)}
+                        placeholder="පේරාදෙණිය පාර, මහනුවර" 
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-red-500"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">විස්තරය</label>
+                      <input 
+                        type="text" 
+                        value={newDesc} 
+                        onChange={(e) => setNewDesc(e.target.value)}
+                        placeholder="හයිබ්‍රිඩ් සහ එන්ජින් අලුත්වැඩියා" 
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-red-500"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg mt-2"
+                    >
+                      ➕ සේවාව ඇතුළත් කරන්න
+                    </button>
+                  </form>
+                </div>
+
+                {/* Manage Existing Services */}
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                  <h3 className="text-sm font-bold text-slate-200 mb-3">📋 පවතින සේවා කළමනාකරණය ({services.length})</h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {services.map(s => (
+                      <div key={s.id} className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                        <div>
+                          <p className="font-bold text-white">{s.name}</p>
+                          <p className="text-slate-400">{s.district} | {s.phone}</p>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteService(s.id)}
+                          className="bg-red-950 text-red-400 border border-red-800 px-2.5 py-1.5 rounded-lg hover:bg-red-900 transition font-bold"
+                        >
+                          මකන්න
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Main Directory View */
+              <div>
+                {/* Search & District Filter */}
+                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 mb-4 shadow-sm">
+                  <input 
+                    type="text"
+                    placeholder="ගෙරාජ්, ටෝවිං හෝ නගරය සොයන්න..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-950 text-white text-sm border border-slate-700 rounded-xl px-4 py-2.5 focus:outline-none focus:border-red-500"
+                  />
+
+                  <select 
+                    value={selectedDistrict} 
+                    onChange={(e) => setSelectedDistrict(e.target.value)}
+                    className="w-full bg-slate-950 text-white text-sm border border-slate-700 rounded-xl px-3 py-2.5 focus:outline-none focus:border-red-500"
+                  >
+                    {DISTRICTS.map((dist) => (
+                      <option key={dist} value={dist}>{dist}</option>
+                    ))}
+                  </select>
+
+                  {/* Category Pills */}
+                  <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+                          selectedCategory === cat.id 
+                            ? "bg-red-600 text-white" 
+                            : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Nearby Live Map Button */}
+                <button 
+                  onClick={() => openGoogleMaps(selectedDistrict === "සියලුම දිස්ත්‍රික්ක" ? "Car Repair Garage" : `Car Repair Garage in ${selectedDistrict}`)}
+                  className="w-full bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-bold py-2.5 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 hover:bg-blue-600/30 transition shadow-sm"
+                >
+                  🗺️ Google Maps හරහා ළඟම තියෙන ගෙරාජ් සොයන්න (Live Map)
+                </button>
+
+                {/* Results Count */}
+                <div className="flex justify-between items-center mb-3 px-1">
+                  <span className="text-xs text-slate-400">
+                    සේවා ස්ථාන ({filteredServices.length})
+                  </span>
+                  {selectedDistrict !== "සියලුම දිස්ත්‍රික්ක" && (
+                    <button 
+                      onClick={() => setSelectedDistrict("සියලුම දිස්ත්‍රික්ක")}
+                      className="text-xs text-red-400 underline"
+                    >
+                      සියල්ල පෙන්වන්න
+                    </button>
+                  )}
+                </div>
+
+                {/* Service Cards */}
+                <div className="space-y-3">
+                  {filteredServices.length === 0 ? (
+                    <div className="bg-slate-900 p-8 rounded-2xl text-center border border-slate-800">
+                      <p className="text-slate-400 text-sm">මෙම තේරීමට අදාළ සේවා ස්ථාන දැනට නොමැත.</p>
+                      <p className="text-xs text-slate-500 mt-1">ඉහළ ඇති Admin බටන් එක ක්ලික් කර නව සේවාවක් එකතු කරන්න.</p>
+                    </div>
+                  ) : (
+                    filteredServices.map((service) => (
+                      <div key={service.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-sm">
+                        <div className="flex justify-between items-start mb-1">
+                          <h3 className="font-bold text-white text-base">{service.name}</h3>
+                          <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-700">
+                            {service.district}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 mb-2">{service.desc}</p>
+                        <p className="text-[11px] text-slate-500 mb-3">📍 {service.address}</p>
+                        
+                        <div className="flex gap-2">
+                          <a 
+                            href={`tel:${service.phone}`}
+                            className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl text-center transition"
+                          >
+                            📞 ඇමතුම් ({service.phone})
+                          </a>
+                          <button 
+                            onClick={() => openGoogleMaps(`${service.name} ${service.address}`)}
+                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition"
+                          >
+                            🗺️ Map
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       );
