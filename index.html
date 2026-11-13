@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Care Sri Lanka</title>
+  <meta name="description" content="Vehicle services, garages, and breakdown assistance directory in Sri Lanka" />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3202/3202926.png" />
+  
+  <!-- Tailwind CSS & React -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-900 text-white">
+  <div id="root"></div>
+
+  <!-- Load App.jsx -->
+  <script type="text/babel" data-presets="react" src="/App.jsx"></script>
+  <script type="text/babel">
+    setTimeout(() => {
+      const rootElement = document.getElementById('root');
+      if (rootElement && typeof App !== 'undefined') {
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+      }
+    }, 500);
+  </script>
+</body>
+</html>
