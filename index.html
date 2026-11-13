@@ -229,7 +229,7 @@
       };
 
       const [currentUser, setCurrentUser] = useState(() => {
-        try { const s = localStorage.getItem('autocare_sl_user_v9'); return s ? JSON.parse(s) : null; } catch { return null; }
+        try { const s = localStorage.getItem('autocare_sl_user_v10'); return s ? JSON.parse(s) : null; } catch { return null; }
       });
       const [userAuthMode, setUserAuthMode] = useState('signin');
       const [userNameInput, setUserNameInput] = useState('');
@@ -242,13 +242,13 @@
 
       const completeUserSignIn = (userObj) => {
         setCurrentUser(userObj);
-        try { localStorage.setItem('autocare_sl_user_v9', JSON.stringify(userObj)); } catch {}
+        try { localStorage.setItem('autocare_sl_user_v10', JSON.stringify(userObj)); } catch {}
       };
 
       const handleUserSignOut = () => {
         setCurrentUser(null);
         setLoggedInAdmin(null);
-        try { localStorage.removeItem('autocare_sl_user_v9'); } catch {}
+        try { localStorage.removeItem('autocare_sl_user_v10'); } catch {}
       };
 
       const handleGoogleSubmit = (e) => {
@@ -272,12 +272,12 @@
         }
 
         let storedUsers = [];
-        try { storedUsers = JSON.parse(localStorage.getItem('autocare_sl_users_v9') || '[]'); } catch {}
+        try { storedUsers = JSON.parse(localStorage.getItem('autocare_sl_users_v10') || '[]'); } catch {}
 
         if (userAuthMode === 'signup') {
           if (!userNameInput.trim()) { setUserAuthError('නම ඇතුළත් කරන්න.'); return; }
           const newUser = { name: userNameInput.trim(), email, pass };
-          try { localStorage.setItem('autocare_sl_users_v9', JSON.stringify([...storedUsers, newUser])); } catch {}
+          try { localStorage.setItem('autocare_sl_users_v10', JSON.stringify([...storedUsers, newUser])); } catch {}
           completeUserSignIn({ name: newUser.name, email: newUser.email, provider: 'email' });
         } else {
           const found = storedUsers.find(u => u.email === email && u.pass === pass);
@@ -289,15 +289,15 @@
       const [activeNav, setActiveNav] = useState('directory');
       
       const [customLogoUrl, setCustomLogoUrl] = useState(() => {
-        try { return localStorage.getItem('autocare_sl_logo_v9') || ''; } catch { return ''; }
+        try { return localStorage.getItem('autocare_sl_logo_v10') || ''; } catch { return ''; }
       });
       const [logoStatusMsg, setLogoStatusMsg] = useState('');
 
       const handleSaveLogo = (dataUrl) => {
         setCustomLogoUrl(dataUrl);
         try {
-          if (dataUrl) { localStorage.setItem('autocare_sl_logo_v9', dataUrl); setLogoStatusMsg('Logo එක සාර්ථකව වෙනස් විය!'); }
-          else { localStorage.removeItem('autocare_sl_logo_v9'); setLogoStatusMsg('Default Logo එකට මාරු කරන ලදී.'); }
+          if (dataUrl) { localStorage.setItem('autocare_sl_logo_v10', dataUrl); setLogoStatusMsg('Logo එක සාර්ථකව වෙනස් විය!'); }
+          else { localStorage.removeItem('autocare_sl_logo_v10'); setLogoStatusMsg('Default Logo එකට මාරු කරන ලදී.'); }
         } catch {}
         setTimeout(() => setLogoStatusMsg(''), 3000);
       };
@@ -311,11 +311,11 @@
       };
 
       const [listings, setListings] = useState(() => {
-        try { const s = localStorage.getItem('autocare_sl_listings_v9'); return s ? JSON.parse(s) : INITIAL_LISTINGS; } catch { return INITIAL_LISTINGS; }
+        try { const s = localStorage.getItem('autocare_sl_listings_v10'); return s ? JSON.parse(s) : INITIAL_LISTINGS; } catch { return INITIAL_LISTINGS; }
       });
 
       useEffect(() => {
-        try { localStorage.setItem('autocare_sl_listings_v9', JSON.stringify(listings)); } catch {}
+        try { localStorage.setItem('autocare_sl_listings_v10', JSON.stringify(listings)); } catch {}
       }, [listings]);
 
       const [searchQuery, setSearchQuery] = useState('');
@@ -408,17 +408,18 @@
           is247: true,
           verified: false,
           rating: 5.0,
+          // STRICTLY PENDING UNLESS LOGGED IN ADMIN ADDS IT DIRECTLY
           status: loggedInAdmin ? 'approved' : 'pending',
           description: formDesc.trim() || '24/7 Reliable vehicle breakdown, recovery & workshop support.'
         };
 
         setListings([newShop, ...listings]);
-        setFormToast(loggedInAdmin ? 'සේවා ස්ථානය සාර්ථකව එකතු විය!' : 'සාර්ථකයි! Admin අනුමැතියෙන් පසු ප්‍රදර්ශනය කෙරේ.');
+        setFormToast(loggedInAdmin ? 'සේවා ස්ථානය සාර්ථකව එකතු විය!' : 'ඔබගේ ෂොප් එක සාර්ථකව යොමු කරන ලදී! Admin අනුමැතියෙන් පසු ප්‍රදර්ශනය කෙරේ.');
         setTimeout(() => {
           setFormToast('');
           setShowAddModal(false);
           setFormName(''); setFormCity(''); setFormAddress(''); setFormPhone(''); setFormWhatsapp(''); setFormMapLink(''); setFormSocialLink(''); setFormDesc('');
-        }, 2000);
+        }, 2500);
       };
 
       const handleApprove = (id) => {
@@ -426,7 +427,7 @@
       };
 
       const handleDelete = (id) => {
-        if (confirm('මෙම සේවාව ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?')) {
+        if (confirm('මෙම සේවාව සම්පූර්ණයෙන්ම ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?')) {
           setListings(listings.filter(item => item.id !== id));
         }
       };
@@ -438,6 +439,7 @@
       const filteredListings = useMemo(() => {
         return listings
           .filter(item => {
+            // ONLY APPROVED ITEMS SHOW IN DIRECTORY UNLESS ADMIN IS VIEWING ALL
             if (item.status !== 'approved' && !loggedInAdmin) return false;
             if (selectedDistrict !== 'all' && item.district !== selectedDistrict) return false;
             if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
@@ -459,6 +461,7 @@
       }, [listings, selectedDistrict, selectedCategory, selectedVehicle, searchQuery, userCoords, loggedInAdmin]);
 
       const pendingListings = useMemo(() => listings.filter(item => item.status === 'pending'), [listings]);
+      const approvedListings = useMemo(() => listings.filter(item => item.status === 'approved'), [listings]);
 
       if (showSplash) {
         return (
@@ -616,7 +619,7 @@
 
                 <div className="space-y-3">
                   {filteredListings.map(shop => (
-                    <div key={shop.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2">
+                    <div key={shop.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2 relative">
                       <div className="flex justify-between items-start">
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-400 uppercase">{shop.category}</span>
                         {shop.distanceKm !== null && <span className="text-[11px] font-bold text-amber-400">📍 {shop.distanceKm} km</span>}
@@ -625,14 +628,22 @@
                       <p className="text-[11px] text-slate-400">📍 {shop.district} ({shop.city}) • {shop.address}</p>
                       <p className="text-[11px] text-slate-300 bg-slate-950 p-2 rounded-xl">{shop.description}</p>
                       
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        <a href={`tel:${shop.phone}`} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2 rounded-xl text-center shadow">📞 {shop.phone}</a>
-                        {shop.whatsapp && <a href={`https://wa.me/${shop.whatsapp}`} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 text-white font-bold text-xs px-3 py-2 rounded-xl text-center">💬 WA</a>}
-                        {/* MAP ICON BUTTON RESTORED */}
-                        <a href={shop.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ' ' + shop.city)}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3 py-2 rounded-xl text-center flex items-center gap-1 shadow">
-                          🗺️ Map
-                        </a>
-                        {shop.socialLink && <a href={shop.socialLink} target="_blank" rel="noopener noreferrer" className="bg-indigo-600 text-white font-bold text-xs px-3 py-2 rounded-xl text-center">🔗 Social</a>}
+                      <div className="flex flex-wrap gap-2 pt-1 items-center justify-between">
+                        <div className="flex flex-wrap gap-2 flex-1">
+                          <a href={`tel:${shop.phone}`} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2 rounded-xl text-center shadow min-w-[90px]">📞 {shop.phone}</a>
+                          {shop.whatsapp && <a href={`https://wa.me/${shop.whatsapp}`} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 text-white font-bold text-xs px-3 py-2 rounded-xl text-center">💬 WA</a>}
+                          <a href={shop.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ' ' + shop.city)}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3 py-2 rounded-xl text-center flex items-center gap-1 shadow">
+                            🗺️ Map
+                          </a>
+                          {shop.socialLink && <a href={shop.socialLink} target="_blank" rel="noopener noreferrer" className="bg-indigo-600 text-white font-bold text-xs px-3 py-2 rounded-xl text-center">🔗 Social</a>}
+                        </div>
+
+                        {/* ADMIN CAN DELETE ANY SHOP DIRECTLY FROM VIEW */}
+                        {loggedInAdmin && (
+                          <button onClick={() => handleDelete(shop.id)} className="bg-red-950 text-red-400 border border-red-800 text-[11px] font-bold px-3 py-2 rounded-xl">
+                            🗑️ Delete
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -673,18 +684,37 @@
                   </div>
                 </div>
 
+                {/* PENDING APPROVALS */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 text-xs">
-                  <h3 className="font-bold text-white">Pending Requests ({pendingListings.length})</h3>
-                  {pendingListings.map(item => (
+                  <h3 className="font-bold text-amber-400">අනුමැතිය අපේක්ෂිත ෂොප්ස් (Pending: {pendingListings.length})</h3>
+                  {pendingListings.length === 0 ? (
+                    <p className="text-slate-500 text-center py-2">අනුමත කිරීමට නව ෂොප් නොමැත.</p>
+                  ) : (
+                    pendingListings.map(item => (
+                      <div key={item.id} className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <div>
+                          <p className="font-bold text-white">{item.name}</p>
+                          <p className="text-[10px] text-slate-400">{item.district} ({item.city}) | {item.phone}</p>
+                        </div>
+                        <div className="flex gap-1.5">
+                          <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 text-white px-2 py-1 rounded-lg font-bold">Approve</button>
+                          <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">Delete</button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* ALL ACTIVE SHOPS (CAN DELETE ANY) */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 text-xs">
+                  <h3 className="font-bold text-white">ප්‍රදර්ශනය වන සියලුම ෂොප්ස් (Active: {approvedListings.length})</h3>
+                  {approvedListings.map(item => (
                     <div key={item.id} className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center">
                       <div>
                         <p className="font-bold text-white">{item.name}</p>
                         <p className="text-[10px] text-slate-400">{item.district} | {item.phone}</p>
                       </div>
-                      <div className="flex gap-1.5">
-                        <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 text-white px-2 py-1 rounded-lg font-bold">Approve</button>
-                        <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">Delete</button>
-                      </div>
+                      <button onClick={() => handleDelete(item.id)} className="bg-red-950 text-red-400 border border-red-800 px-2.5 py-1 rounded-lg font-bold">Delete</button>
                     </div>
                   ))}
                 </div>
@@ -767,7 +797,6 @@
                     </div>
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">{t.mapLinkL}</label>
-                      {/* MAP LINK IS NOW REQUIRED */}
                       <input type="url" required value={formMapLink} onChange={e => setFormMapLink(e.target.value)} placeholder="https://maps.google.com/..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                     </div>
                   </div>
