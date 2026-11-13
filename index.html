@@ -1,628 +1,1740 @@
-<!DOCTYPE html>
-<html lang="si">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auto Care Sri Lanka</title>
-  <meta name="theme-color" content="#0f172a" />
-  <link rel="manifest" href="/manifest.json" />
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React & ReactDOM -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <!-- Babel -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
-<body class="bg-slate-950 text-white font-sans antialiased">
-  <div id="root" class="flex items-center justify-center min-h-screen text-slate-400">
-    Auto Care Sri Lanka පූරණය වෙමින් පවතී...
-  </div>
+```react
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  MapPin,
+  Phone,
+  MessageCircle,
+  Navigation,
+  Search,
+  Filter,
+  ShieldCheck,
+  AlertTriangle,
+  PlusCircle,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Lock,
+  LogOut,
+  Wrench,
+  Truck,
+  Fuel,
+  Wind,
+  Disc,
+  Zap,
+  Car,
+  Bus,
+  Bike,
+  Clock,
+  Star,
+  ExternalLink,
+  Compass,
+  PhoneCall,
+  Siren,
+  Sparkles,
+  ChevronDown,
+  Building2,
+  X,
+  Globe,
+  Upload,
+  RotateCcw,
+  Image as ImageIcon,
+  Eye,
+  EyeOff,
+  User,
+  Settings,
+  Mail,
+  Package,
+  Droplets
+} from 'lucide-react';
 
-  <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+// ============================================================================
+// 0. FIREBASE CONFIG DEFAULTS & OFFICIAL GOOGLE SVG ICON
+// ============================================================================
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: '',
+  authDomain: '',
+  projectId: '',
+  appId: ''
+};
 
-    const DISTRICTS = [
-      "සියලුම දිස්ත්‍රික්ක", "කොළඹ", "ගම්පහ", "කළුතර", "මහනුවර", "මාතලේ", "නුවරඑළිය",
-      "ගාල්ල", "මාතර", "හම්බන්තොට", "යාපනය", "කුරුණෑගල", "පුත්තලම",
-      "අනුරාධපුර", "පොළොන්නරුව", "බදුල්ල", "මොණරාගල", "රත්නපුර", "කෑගල්ල",
-      "මඩකලපුව", "අම්පාර", "ත්‍රිකුණාමලය", "වවුනියාව", "මන්නාරම", "කිලිනොච්චිය", "මුලතිව්"
-    ];
+const GoogleIconSVG = ({ className = 'w-4 h-4' }) => (
+  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+    <path
+      fill="#4285F4"
+      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"
+    />
+    <path
+      fill="#EA4335"
+      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"
+    />
+  </svg>
+);
 
-    const VEHICLE_TYPES = [
-      { id: "all", label: "සියලුම වාහන" },
-      { id: "car", label: "🚗 කාර් / සෙඩාන්" },
-      { id: "bike", label: "🏍️ මෝටර් සයිকেল" },
-      { id: "van", label: "🚐 වෑන් / SUV" },
-      { id: "heavy", label: "🚚 බර වාහන" }
-    ];
+// ============================================================================
+// 1. CUSTOM RED ROUNDED-SQUARE SVG LOGO + UPLOADED LOGO DISPLAY
+// ============================================================================
+const DefaultRedVectorLogo = ({ className = 'w-11 h-11' }) => (
+  <svg
+    viewBox="0 0 512 512"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="Auto Care Sri Lanka Logo"
+  >
+    <rect width="512" height="512" rx="115" fill="#DC2626" />
+    <rect
+      x="6"
+      y="6"
+      width="500"
+      height="500"
+      rx="110"
+      stroke="rgba(255,255,255,0.22)"
+      strokeWidth="6"
+    />
+    {/* White Teardrop Location Pin */}
+    <path
+      d="M256 78C166.5 78 94 149.5 94 238C94 334 232 436 248.5 448.2C253 451.5 259 451.5 263.5 448.2C280 436 418 334 418 238C418 149.5 345.5 78 256 78Z"
+      fill="#FFFFFF"
+    />
+    {/* Diagonal White Wrench */}
+    <g transform="rotate(-42 256 256)">
+      <rect x="234" y="54" width="44" height="404" rx="14" fill="#FFFFFF" />
+      <rect
+        x="248"
+        y="105"
+        width="16"
+        height="302"
+        rx="8"
+        fill="#DC2626"
+        opacity="0.22"
+      />
+      <path
+        d="M206 54C206 24 306 24 306 54V92C306 112 288 124 256 124C224 124 206 112 206 92V54Z"
+        fill="#FFFFFF"
+      />
+      <path
+        d="M236 28H276V72C276 81 267 88 256 88C245 88 236 81 236 72V28Z"
+        fill="#DC2626"
+      />
+      <path
+        d="M206 420C206 400 224 388 256 388C288 388 306 400 306 420V458C306 488 206 488 206 458V420Z"
+        fill="#FFFFFF"
+      />
+      <path
+        d="M236 440C236 431 245 424 256 424C267 424 276 431 276 440V484H236V440Z"
+        fill="#DC2626"
+      />
+    </g>
+    {/* Red Center Circle */}
+    <circle cx="256" cy="232" r="84" fill="#DC2626" />
+    {/* White Centered Front Car Icon */}
+    <g transform="translate(174, 166)">
+      <rect x="6" y="52" width="16" height="11" rx="5" fill="#FFFFFF" />
+      <rect x="142" y="52" width="16" height="11" rx="5" fill="#FFFFFF" />
+      <path
+        d="M34 54L46 22C50 13 59 8 69 8H95C105 8 114 13 118 22L130 54H34Z"
+        fill="#FFFFFF"
+      />
+      <path
+        d="M46 50L54 25C56 20 61 17 67 17H97C103 17 108 20 110 25L118 50H46Z"
+        fill="#DC2626"
+      />
+      <rect x="18" y="50" width="128" height="46" rx="16" fill="#FFFFFF" />
+      <ellipse cx="40" cy="70" rx="12" ry="7" fill="#DC2626" />
+      <ellipse cx="124" cy="70" rx="12" ry="7" fill="#DC2626" />
+      <rect x="62" y="67" width="40" height="13" rx="6" fill="#DC2626" />
+      <path
+        d="M26 95H48V109C48 114 44 118 39 118H35C30 118 26 114 26 109V95Z"
+        fill="#FFFFFF"
+      />
+      <path
+        d="M116 95H138V109C138 114 134 118 129 118H125C120 118 116 114 116 109V95Z"
+        fill="#FFFFFF"
+      />
+    </g>
+  </svg>
+);
 
-    const CATEGORIES = [
-      { id: "all", label: "සියලුම සේවා" },
-      { id: "garage", label: "ගෙරාජ්" },
-      { id: "breakdown", label: "බ්‍රේක්ඩවුන්" },
-      { id: "tyre", label: "ටයර් ෂොප්" },
-      { id: "parts", label: "අමතර කොටස්" }
-    ];
+const AppLogoDisplay = ({ customLogoUrl, className = 'w-11 h-11' }) => {
+  if (customLogoUrl) {
+    return (
+      <img
+        src={customLogoUrl}
+        alt="Auto Care Sri Lanka Logo"
+        className={`${className} object-cover`}
+      />
+    );
+  }
+  return <DefaultRedVectorLogo className={className} />;
+};
 
-    const INITIAL_SERVICES = [
-      { id: 1, name: "Colombo Hybrid & Auto Care", district: "කොළඹ", vehicle: "car", category: "garage", desc: "හයිබ්‍රිඩ් බැටරි සහ එන්ජින් ස්කෑන්", phone: "0112345678", address: "නුගේගොඩ", status: "approved" },
-      { id: 2, name: "Expressway Towing 24/7", district: "කොළඹ", vehicle: "all", category: "breakdown", desc: "හදිසි ටෝවිං සහ ප්‍රවාහන සේවය", phone: "0771234567", address: "කඩවත", status: "approved" },
-      { id: 3, name: "Kandy Bike Care Center", district: "මහනුවර", vehicle: "bike", category: "garage", desc: "මෝටර් සයිකල් ටියුන්-අප් සහ එන්ජින්", phone: "0812233445", address: "පේරාදෙණිය පාර", status: "approved" },
-      { id: 4, name: "Kegalle Auto Electricals", district: "කෑගල්ල", vehicle: "car", category: "garage", desc: "වාහන වයරින් සහ AC අලුත්වැඩියා", phone: "0352223344", address: "කොළඹ පාර", status: "approved" }
-    ];
+// ============================================================================
+// 2. MULTILINGUAL DICTIONARY (SINHALA / ENGLISH / TAMIL)
+// ============================================================================
+const TRANSLATIONS = {
+  si: {
+    subtitle: 'දිවයින පුරා රිකවරි, ගරාජ්, ඉන්ධන සහ හදිසි වාහන සේවා',
+    gpsPrompt: 'ළඟම ඇති ගරාජ් සහ ෂෙඩ් හඳුනා ගැනීමට Location (GPS) On කරන්න',
+    gpsActive: 'GPS සක්‍රීයයි — ළඟම ඇති සේවා දුර (km) අනුව පෙළගස්වා ඇත!',
+    gpsBtnOn: 'GPS On කරන්න',
+    gpsBtnUpdate: 'GPS යාවත්කාලීන කරන්න',
+    gpsLoading: 'සොයමින්...',
+    navDirectory: 'සේවා සොයන්න',
+    navHotlines: 'හදිසි ඇමතුම්',
+    navAdd: 'අලුත් ස්ථානයක්',
+    navAdmin: 'Admin',
+    searchPlaceholder: 'ගරාජ්, රිකවරි, ඉන්ධන පිරවුම්හල් හෝ නගරය සොයන්න...',
+    allDistrictsLabel: 'සියලුම දිස්ත්‍රික්ක (25)',
+    catHeading: 'සේවා වර්ගය (Service Categories)',
+    vehHeading: 'වාහන වර්ගය (Vehicle Type)',
+    open247Only: '24/7 Open Now පමණක්',
+    resetFilters: 'Reset Filters',
+    foundCount: 'හමුවූ සේවා ස්ථාන:',
+    sortedByKm: 'ළඟම ස්ථානය පළමුව (km)',
+    noResultsTitle: 'ගැලපෙන සේවා ස්ථානයක් හමු නොවීය',
+    noResultsDesc: 'වෙනත් දිස්ත්‍රික්කයක් හෝ වෙනත් සේවා වර්ගයක් තෝරා නැවත පරීක්ෂා කරන්න.',
+    showAllBtn: 'සියලුම සේවා පෙන්වන්න',
+    callBtn: 'Call',
+    waBtn: 'WhatsApp',
+    mapsBtn: 'Maps',
+    hotlineTitle: 'ශ්‍රී ලංකා හදිසි ඇමතුම් අංක (Emergency Hotlines)',
+    hotlineDesc: 'හදිසි මාර්ග අනතුරු, ගිලන් රථ සහ අධිවේගී මාර්ග සහාය සඳහා එක් ක්ලික් කිරීමකින් ඍජුවම අමතන්න.',
+    addTitle: 'අලුත් ස්ථානයක් එක් කරන්න',
+    addSubtitle: 'ඔබගේ ගරාජය, රිකවරි රථය හෝ ඉන්ධන පිරවුම්හල ඇතුළත් කරන්න (Admin අනුමැතියෙන් පසු පළ වේ).',
+    submitBtn: 'Admin අනුමැතිය සඳහා යොමු කරන්න',
+    authWelcome: 'Auto Care Sri Lanka වෙත සාදරයෙන් පිළිගනිමු',
+    authSubtitle: 'දිවයින පුරා රිකවරි, ගරාජ් සහ හදිසි සේවා ලබාගැනීමට පිවිසෙන්න',
+    continueGoogle: 'Continue with Google',
+    signInTab: 'Sign In',
+    signUpTab: 'Sign Up',
+    signOut: 'Sign Out'
+  },
+  en: {
+    subtitle: '24/7 Islandwide Recovery, Garages, Fuel & Breakdown Assistance',
+    gpsPrompt: 'Turn on Location (GPS) to find the nearest garages & fuel sheds',
+    gpsActive: 'GPS Active — Sorted by nearest distance (km) from your location!',
+    gpsBtnOn: 'GPS On',
+    gpsBtnUpdate: 'Refresh GPS',
+    gpsLoading: 'Locating...',
+    navDirectory: 'Directory',
+    navHotlines: 'Hotlines',
+    navAdd: 'Add Place',
+    navAdmin: 'Admin',
+    searchPlaceholder: 'Search garages, towing, fuel stations or city...',
+    allDistrictsLabel: 'All Districts (25)',
+    catHeading: 'Service Categories',
+    vehHeading: 'Vehicle Type',
+    open247Only: '24/7 Open Now Only',
+    resetFilters: 'Reset Filters',
+    foundCount: 'Service Locations Found:',
+    sortedByKm: 'Nearest First (km)',
+    noResultsTitle: 'No matching service locations found',
+    noResultsDesc: 'Try selecting a different district or service category.',
+    showAllBtn: 'Show All Services',
+    callBtn: 'Call',
+    waBtn: 'WhatsApp',
+    mapsBtn: 'Maps',
+    hotlineTitle: 'Sri Lanka Emergency Hotlines',
+    hotlineDesc: 'One-tap direct emergency calls for Police, Ambulance, Expressway Rescue & Fire.',
+    addTitle: 'Add a New Service Location',
+    addSubtitle: 'Register your garage, recovery truck or fuel shed (Published after Admin approval).',
+    submitBtn: 'Submit for Admin Approval',
+    authWelcome: 'Welcome to Auto Care Sri Lanka',
+    authSubtitle: 'Sign in to access 24/7 recovery, garages & roadside assistance',
+    continueGoogle: 'Continue with Google',
+    signInTab: 'Sign In',
+    signUpTab: 'Sign Up',
+    signOut: 'Sign Out'
+  },
+  ta: {
+    subtitle: 'இலங்கை முழுவதும் 24/7 மீட்பு, கேரேஜ், எரிபொருள் மற்றும் அவசர வாகன சேவைகள்',
+    gpsPrompt: 'அருகிலுள்ள கேரேஜ்கள் மற்றும் எரிபொருள் நிலையங்களைக் கண்டறிய GPS ஐ இயக்கவும்',
+    gpsActive: 'GPS செயலில் உள்ளது — அருகிலுள்ள தூரம் (km) அடிப்படையில் வரிசைப்படுத்தப்பட்டுள்ளது!',
+    gpsBtnOn: 'GPS இயக்கு',
+    gpsBtnUpdate: 'GPS புதுப்பி',
+    gpsLoading: 'தேடுகிறது...',
+    navDirectory: 'சேவைகள்',
+    navHotlines: 'அவசர எண்கள்',
+    navAdd: 'புதிய இடம்',
+    navAdmin: 'Admin',
+    searchPlaceholder: 'கேரேஜ், டோவிங், எரிபொருள் நிலையம் அல்லது நகரத்தைத் தேடுங்கள்...',
+    allDistrictsLabel: 'அனைத்து மாவட்டங்களும் (25)',
+    catHeading: 'சேவை வகைகள் (Categories)',
+    vehHeading: 'வாகன வகை (Vehicle Type)',
+    open247Only: '24/7 திறந்தவை மட்டும்',
+    resetFilters: 'வடிகட்டியை மீட்டமை',
+    foundCount: 'கண்டறியப்பட்ட சேவை இடங்கள்:',
+    sortedByKm: 'அருகிலுள்ளவை முதலில் (km)',
+    noResultsTitle: 'பொருத்தமான சேவை இடங்கள் எதுவும் இல்லை',
+    noResultsDesc: 'வேறு மாவட்டம் அல்லது சேவை வகையைத் தேர்ந்தெடுத்து மீண்டும் முயற்சிக்கவும்.',
+    showAllBtn: 'அனைத்து சேவைகளையும் காட்டு',
+    callBtn: 'அழை',
+    waBtn: 'WhatsApp',
+    mapsBtn: 'வரைபடம்',
+    hotlineTitle: 'இலங்கை அவசர அழைப்பு எண்கள் (Hotlines)',
+    hotlineDesc: 'காவல்துறை, ஆம்புலன்ஸ் மற்றும் அதிவேக நெடுஞ்சாலை உதவிக்கு உடனடியாக அழைக்கவும்.',
+    addTitle: 'புதிய சேவை இடத்தைச் சேர்க்கவும்',
+    addSubtitle: 'உங்கள் கேரேஜ் அல்லது மீட்பு வாகனத்தைச் சேர்க்கவும் (Admin அனுமதிக்குப் பின் வெளியிடப்படும்).',
+    submitBtn: 'Admin அனுமதிக்கு சமர்ப்பிக்கவும்',
+    authWelcome: 'Auto Care Sri Lanka விற்கு வரவேற்கிறோம்',
+    authSubtitle: '24/7 மீட்பு மற்றும் வாகன சேவைகளைப் பெற உள்நுழையவும்',
+    continueGoogle: 'Continue with Google',
+    signInTab: 'Sign In',
+    signUpTab: 'Sign Up',
+    signOut: 'Sign Out'
+  }
+};
 
-    const EMERGENCY_NUMBERS = [
-      { label: "පොලිස් හදිසි ඇමතුම්", number: "119", color: "bg-red-600" },
-      { label: "සුවසැරිය ගිලන් රථ", number: "1990", color: "bg-emerald-600" },
-      { label: "ගිනි නිවන සේවා", number: "110", color: "bg-orange-600" },
-      { label: "අධිවේගී මාර්ග සහන", number: "1969", color: "bg-blue-600" }
-    ];
+// ============================================================================
+// 3. ALL 25 SRI LANKAN DISTRICTS
+// ============================================================================
+const SRI_LANKA_DISTRICTS = [
+  { id: 'all', en: 'All Districts', si: 'සියලුම දිස්ත්‍රික්ක (25)', ta: 'அனைத்து மாவட்டங்களும்' },
+  { id: 'Colombo', en: 'Colombo', si: 'කොළඹ', ta: 'கொழும்பு' },
+  { id: 'Gampaha', en: 'Gampaha', si: 'ගම්පහ', ta: 'கம்பஹா' },
+  { id: 'Kalutara', en: 'Kalutara', si: 'කළුතර', ta: 'களுத்துறை' },
+  { id: 'Kandy', en: 'Kandy', si: 'මහනුවර', ta: 'கண்டி' },
+  { id: 'Matale', en: 'Matale', si: 'මාතලේ', ta: 'மாத்தளை' },
+  { id: 'Nuwara Eliya', en: 'Nuwara Eliya', si: 'නුවරඑළිය', ta: 'நுவரெலியா' },
+  { id: 'Galle', en: 'Galle', si: 'ගාල්ල', ta: 'காலி' },
+  { id: 'Matara', en: 'Matara', si: 'මාතර', ta: 'மாத்தறை' },
+  { id: 'Hambantota', en: 'Hambantota', si: 'හම්බන්තොට', ta: 'அம்பாந்தோட்டை' },
+  { id: 'Jaffna', en: 'Jaffna', si: 'යාපනය', ta: 'யாழ்ப்பாணம்' },
+  { id: 'Kilinochchi', en: 'Kilinochchi', si: 'කිලිනොච්චිය', ta: 'கிளிநொச்சி' },
+  { id: 'Mannar', en: 'Mannar', si: 'මන්නාරම', ta: 'மன்னார்' },
+  { id: 'Vavuniya', en: 'Vavuniya', si: 'වවුනියාව', ta: 'வவுனியா' },
+  { id: 'Mullaitivu', en: 'Mullaitivu', si: 'මුලතිව්', ta: 'முல்லைத்தீவு' },
+  { id: 'Batticaloa', en: 'Batticaloa', si: 'මඩකලපුව', ta: 'மட்டக்களப்பு' },
+  { id: 'Ampara', en: 'Ampara', si: 'අම්පාර', ta: 'அம்பாறை' },
+  { id: 'Trincomalee', en: 'Trincomalee', si: 'ත්‍රිකුණාමලය', ta: 'திருகோணமலை' },
+  { id: 'Kurunegala', en: 'Kurunegala', si: 'කුරුණෑගල', ta: 'குருநாகல்' },
+  { id: 'Puttalam', en: 'Puttalam', si: 'පුත්තලම', ta: 'புத்தளம்' },
+  { id: 'Anuradhapura', en: 'Anuradhapura', si: 'අනුරාධපුරය', ta: 'அனுராதபுரம்' },
+  { id: 'Polonnaruwa', en: 'Polonnaruwa', si: 'පොළොන්නරුව', ta: 'பொலன்னறுவை' },
+  { id: 'Badulla', en: 'Badulla', si: 'බදුල්ල', ta: 'பதுளை' },
+  { id: 'Monaragala', en: 'Monaragala', si: 'මොණරාගල', ta: 'மொனராகலை' },
+  { id: 'Ratnapura', en: 'Ratnapura', si: 'රත්නපුරය', ta: 'இரத்தினபுரி' },
+  { id: 'Kegalle', en: 'Kegalle', si: 'කෑගල්ල', ta: 'கேகாலை' }
+];
 
-    function App() {
-      const [activeTab, setActiveTab] = useState("services"); // 'services' | 'emergency' | 'admin' | 'login' | 'addShop'
-      const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem("autocare_user");
-        return saved ? JSON.parse(saved) : null;
-      });
+// ============================================================================
+// 4. ALL 8 SERVICE CATEGORIES + ALL SERVICES
+// ============================================================================
+const SERVICE_CATEGORIES = [
+  { id: 'all', si: 'සියලුම සේවා (All)', en: 'All Services', ta: 'அனைத்து சேவைகள்', icon: Wrench },
+  { id: 'recovery', si: 'රිකවරි / ටෝවින් රථ', en: 'Recovery Trucks / Towing', ta: 'மீட்பு / டோவிங்', icon: Truck },
+  { id: 'mechanical', si: 'යාන්ත්‍රික ගරාජ්', en: 'Mechanical Garage', ta: 'இயந்திர கேரேஜ்', icon: Wrench },
+  { id: 'fuel', si: 'ඉන්ධන පිරවුම්හල් (Shed)', en: 'Fuel / Petrol Shed', ta: 'எரிபொருள் நிலையம்', icon: Fuel },
+  { id: 'tire', si: 'ටයර් සහ පැච් (Tire)', en: 'Tire & Punctures', ta: 'டயர் & பஞ்சர்', icon: Disc },
+  { id: 'electrical', si: 'විදුලි සහ බැටරි', en: 'Auto Electrical & Battery', ta: 'மின்சாரம் & பேட்டரி', icon: Zap },
+  { id: 'ac', si: 'Vehicle AC Repair', en: 'Vehicle AC Repair', ta: 'வாகன AC பழுது', icon: Wind },
+  { id: 'spare_parts', si: 'අමතර කොටස් (Spare Parts)', en: 'Spare Parts Shop', ta: 'உதிரி பாகங்கள்', icon: Package },
+  { id: 'car_wash', si: 'Car Wash & Detailing', en: 'Car Wash & Detailing', ta: 'கார் வாஷ்', icon: Droplets }
+];
 
-      const [services, setServices] = useState(() => {
-        const saved = localStorage.getItem("autocare_all_services");
-        return saved ? JSON.parse(saved) : INITIAL_SERVICES;
-      });
+// ============================================================================
+// 5. ALL 7 VEHICLE TYPES
+// ============================================================================
+const VEHICLE_TYPES = [
+  { id: 'all', si: 'සියලුම වාහන', en: 'All Vehicles', ta: 'அனைத்து வாகனங்கள்', icon: Car },
+  { id: 'car', si: 'Car', en: 'Car', ta: 'கார் (Car)', icon: Car },
+  { id: 'van', si: 'Van', en: 'Van', ta: 'வேன் (Van)', icon: Car },
+  { id: 'motorcycle', si: 'Motorcycle', en: 'Motorcycle', ta: 'மோட்டார் சைக்கிள்', icon: Bike },
+  { id: 'three_wheel', si: 'ත්‍රීවීල් (Tuk)', en: 'Three-Wheeler', ta: 'முச்சக்கர வண்டி', icon: Car },
+  { id: 'bus', si: 'බස් (Bus)', en: 'Bus', ta: 'பஸ் (Bus)', icon: Bus },
+  { id: 'lorry', si: 'ලොරි / Truck', en: 'Lorry / Truck', ta: 'லாரி / டிரக்', icon: Truck },
+  { id: 'heavy', si: 'බර වාහන (Heavy)', en: 'Heavy Vehicles', ta: 'கனரக வாகனங்கள்', icon: Truck }
+];
 
-      const [selectedDistrict, setSelectedDistrict] = useState("සියලුම දිස්ත්‍රික්ක");
-      const [selectedVehicle, setSelectedVehicle] = useState("all");
-      const [selectedCategory, setSelectedCategory] = useState("all");
-      const [searchQuery, setSearchQuery] = useState("");
+// ============================================================================
+// 6. SRI LANKA EMERGENCY HOTLINES
+// ============================================================================
+const EMERGENCY_HOTLINES = [
+  {
+    id: '119',
+    number: '119',
+    titleSi: 'පොලිස් හදිසි ඇමතුම් අංශය',
+    titleEn: 'Police Emergency Service',
+    titleTa: 'காவல்துறை அவசர அழைப்பு பிரிவு',
+    desc: 'මාර්ග අනතුරු, ආරක්ෂක හදිසි අවස්ථා සහ පොලිස් සහාය සඳහා (24/7)',
+    badge: 'POLICE 24/7',
+    gradient: 'from-red-600 to-red-800'
+  },
+  {
+    id: '1990',
+    number: '1990',
+    titleSi: 'සුවසැරිය ගිලන් රථ සේවය',
+    titleEn: '1990 Suwa Seriya Ambulance',
+    titleTa: '1990 சுவசெரிய ஆம்புலன்ஸ் சேவை',
+    desc: 'හදිසි අනතුරු හා වෛද්‍ය ප්‍රතිකාර සඳහා නොමිලේ ගිලන් රථ සේවාව',
+    badge: 'FREE AMBULANCE',
+    gradient: 'from-emerald-600 to-teal-800'
+  },
+  {
+    id: '1969',
+    number: '1969',
+    titleSi: 'අධිවේගී මාර්ග හදිසි සහාය',
+    titleEn: 'Expressway Emergency Hotline',
+    titleTa: 'அதிவேக நெடுஞ்சாலை அவசர உதவி',
+    desc: 'දක්ෂිණ, කටුනායක, මධ්‍යම අධිවේගී මාර්ග බ්‍රේක්ඩවුන් සහ රිකවරි සහාය',
+    badge: 'HIGHWAY RESCUE',
+    gradient: 'from-amber-600 to-orange-800'
+  },
+  {
+    id: '110',
+    number: '110',
+    titleSi: 'ගිනි නිවන හමුදාව සහ ගලවා ගැනීම්',
+    titleEn: 'Fire & Rescue Service',
+    titleTa: 'தீயணைப்பு மற்றும் மீட்பு சேவை',
+    desc: 'වාහන ගිනි ගැනීම් සහ හදිසි ගලවා ගැනීමේ මෙහෙයුම් සඳහා',
+    badge: 'FIRE & RESCUE',
+    gradient: 'from-orange-600 to-red-700'
+  },
+  {
+    id: '1919',
+    number: '1919',
+    titleSi: 'රාජ්‍ය තොරතුරු කේන්ද්‍රය / මාර්ග සහාය',
+    titleEn: 'Government Information Center',
+    titleTa: 'அரச தகவல் மையம் / வீதி உதவி',
+    desc: 'මාර්ග අවහිරතා, පොදු ප්‍රවාහන සහ රාජ්‍ය හදිසි තොරතුරු සඳහා',
+    badge: 'GOVT INFO',
+    gradient: 'from-blue-600 to-indigo-800'
+  }
+];
 
-      // Add Shop Form State
-      const [shopName, setShopName] = useState("");
-      const [shopDistrict, setShopDistrict] = useState("කොළඹ");
-      const [shopVehicle, setShopVehicle] = useState("car");
-      const [shopCategory, setShopCategory] = useState("garage");
-      const [shopPhone, setShopPhone] = useState("");
-      const [shopAddress, setShopAddress] = useState("");
-      const [shopDesc, setShopDesc] = useState("");
+// ============================================================================
+// 7. SECURE ADMIN CREDENTIALS (NO HINTS OR AUTO-FILL)
+// ============================================================================
+const ALLOWED_ADMINS = [
+  {
+    id: 'admin-1',
+    name: 'Shashika (Admin 1)',
+    email: 'shashikah46@gmail.com',
+    pass: 'Adminacs2007'
+  },
+  {
+    id: 'admin-2',
+    name: 'AutoCare Admin 2',
+    email: 'carea3261@gmail.com',
+    pass: 'Adminacs2008'
+  }
+];
 
-      // Admin Login State
-      const [adminPass, setAdminPass] = useState("");
-      const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+// ============================================================================
+// 8. INITIAL SRI LANKA DIRECTORY LISTINGS
+// ============================================================================
+const INITIAL_LISTINGS = [
+  {
+    id: 'srv-01',
+    name: 'Lanka Heavy Recovery & Crane Towing Service',
+    category: 'recovery',
+    vehicles: ['bus', 'lorry', 'heavy', 'van', 'car'],
+    district: 'Colombo',
+    address: 'No. 412, High Level Road, Pannipitiya, Colombo',
+    phone: '0771234567',
+    whatsapp: '94771234567',
+    lat: 6.8478,
+    lng: 79.9575,
+    is247: true,
+    verified: true,
+    rating: 4.9,
+    status: 'approved',
+    description: '24/7 Heavy Boom Truck, Hydraulic Flatbed Carrier & Crane Recovery for Buses, Container Lorries, Excavators and Cars.'
+  },
+  {
+    id: 'srv-02',
+    name: 'Kandy Hill Country 24/7 Towing & Recovery',
+    category: 'recovery',
+    vehicles: ['bus', 'lorry', 'heavy', 'car', 'van', 'three_wheel'],
+    district: 'Kandy',
+    address: 'Peradeniya Road, Mulgampola, Kandy',
+    phone: '0714567890',
+    whatsapp: '94714567890',
+    lat: 7.2835,
+    lng: 80.6214,
+    is247: true,
+    verified: true,
+    rating: 4.8,
+    status: 'approved',
+    description: 'Specialized hill-country flatbed recovery and heavy winch rescue across Kadugannawa, Kandy, and Nuwara Eliya roads.'
+  },
+  {
+    id: 'srv-03',
+    name: 'Ceypetco & Lanka IOC 24H Super Fuel Mart',
+    category: 'fuel',
+    vehicles: ['bus', 'lorry', 'heavy', 'car', 'van', 'three_wheel', 'motorcycle'],
+    district: 'Colombo',
+    address: 'Baseline Road, Borella Junction, Colombo 08',
+    phone: '0112684520',
+    whatsapp: '94772233445',
+    lat: 6.9147,
+    lng: 79.8778,
+    is247: true,
+    verified: true,
+    rating: 4.7,
+    status: 'approved',
+    description: '24-Hour Octane 92/95 Petrol, Super Diesel, Heavy Truck High-Speed Diesel Pumps, Digital Air & Lubricant Mart.'
+  },
+  {
+    id: 'srv-04',
+    name: 'Expressway Ja-Ela Auto Mechanical & Breakdown Unit',
+    category: 'mechanical',
+    vehicles: ['car', 'van', 'bus', 'lorry', 'three_wheel', 'motorcycle'],
+    district: 'Gampaha',
+    address: 'Negombo Road, Ja-Ela Interchange, Gampaha',
+    phone: '0768899001',
+    whatsapp: '94768899001',
+    lat: 7.0744,
+    lng: 79.8916,
+    is247: true,
+    verified: true,
+    rating: 4.9,
+    status: 'approved',
+    description: 'Full mechanical workshop and mobile mechanic van reaching you within 25 minutes for belt replacement, engine & brake repairs.'
+  },
+  {
+    id: 'srv-05',
+    name: 'Rajarata Heavy Diesel & Lorry Mechanical Works',
+    category: 'mechanical',
+    vehicles: ['bus', 'lorry', 'heavy'],
+    district: 'Anuradhapura',
+    address: 'Puttalam Road, New Town, Anuradhapura',
+    phone: '0703344556',
+    whatsapp: '94703344556',
+    lat: 8.3114,
+    lng: 80.4037,
+    is247: true,
+    verified: true,
+    rating: 4.8,
+    status: 'approved',
+    description: 'Complete Leyland, Tata, Isuzu, Hino & JCB engine overhaul, gearbox repair, air-brake servicing and hydraulic repairs.'
+  },
+  {
+    id: 'srv-06',
+    name: 'Kurunegala Tyre House & 24H Puncture Center',
+    category: 'tire',
+    vehicles: ['bus', 'lorry', 'heavy', 'car', 'van', 'three_wheel', 'motorcycle'],
+    district: 'Kurunegala',
+    address: 'Colombo Road, Wehera, Kurunegala',
+    phone: '0725566778',
+    whatsapp: '94725566778',
+    lat: 7.4728,
+    lng: 80.3547,
+    is247: true,
+    verified: true,
+    rating: 4.6,
+    status: 'approved',
+    description: 'Mobile tyre puncture unit, heavy truck tubeless patching, 3D wheel alignment, and brand-new radial & heavy tyres.'
+  },
+  {
+    id: 'srv-07',
+    name: 'Southern Coast Auto AC & Hybrid Cooling Lab',
+    category: 'ac',
+    vehicles: ['car', 'van', 'bus', 'lorry'],
+    district: 'Galle',
+    address: 'Matara Road, Katugoda, Galle',
+    phone: '0759988772',
+    whatsapp: '94759988772',
+    lat: 6.0329,
+    lng: 80.2168,
+    is247: false,
+    verified: true,
+    rating: 4.8,
+    status: 'approved',
+    description: 'Computerized R134a / R1234yf AC gas charging, hybrid electric compressor repair, bus dual-AC servicing & leak detection.'
+  },
+  {
+    id: 'srv-08',
+    name: 'Nugegoda Auto Electrical & 24H Battery Clinic',
+    category: 'electrical',
+    vehicles: ['car', 'van', 'bus', 'lorry', 'three_wheel', 'motorcycle'],
+    district: 'Colombo',
+    address: 'Stanley Thilakaratne Mawatha, Nugegoda',
+    phone: '0712233998',
+    whatsapp: '94712233998',
+    lat: 6.8649,
+    lng: 79.8997,
+    is247: true,
+    verified: true,
+    rating: 4.7,
+    status: 'approved',
+    description: 'Alternator & starter motor rebuild, ECU fault scanning, Exide/Amaron instant battery delivery & jump-start service.'
+  },
+  {
+    id: 'srv-09',
+    name: 'Panchikawatta & Kiribathgoda Genuine Spare Parts',
+    category: 'spare_parts',
+    vehicles: ['car', 'van', 'bus', 'lorry', 'three_wheel', 'motorcycle'],
+    district: 'Gampaha',
+    address: 'Kandy Road, Kiribathgoda',
+    phone: '0779911223',
+    whatsapp: '94779911223',
+    lat: 6.9794,
+    lng: 79.9297,
+    is247: false,
+    verified: true,
+    rating: 4.9,
+    status: 'approved',
+    description: 'Genuine & OEM Japanese, Indian & European engine parts, brake pads, filters, clutch plates, suspension & body parts.'
+  },
+  {
+    id: 'srv-10',
+    name: 'Southern Expressway Godagama Recovery & Fuel',
+    category: 'recovery',
+    vehicles: ['bus', 'lorry', 'heavy', 'car', 'van'],
+    district: 'Matara',
+    address: 'Godagama Interchange Entrance, Matara',
+    phone: '0701122990',
+    whatsapp: '94701122990',
+    lat: 5.9735,
+    lng: 80.5312,
+    is247: true,
+    verified: true,
+    rating: 4.9,
+    status: 'approved',
+    description: 'Authorized rapid-response flatbed carrier and heavy recovery service for Southern Expressway E01 breakdowns.'
+  },
+  {
+    id: 'srv-11',
+    name: 'Jaffna Northern Star Fuel & Quick Service',
+    category: 'fuel',
+    vehicles: ['bus', 'lorry', 'heavy', 'car', 'van', 'three_wheel', 'motorcycle'],
+    district: 'Jaffna',
+    address: 'Hospital Road, Jaffna Town',
+    phone: '0212224567',
+    whatsapp: '94774455661',
+    lat: 9.6615,
+    lng: 80.0255,
+    is247: true,
+    verified: true,
+    rating: 4.7,
+    status: 'approved',
+    description: '24/7 Fuel pumping station with attached quick-service mechanical bay, oil change and tyre inflation.'
+  },
+  {
+    id: 'srv-12',
+    name: 'Royal Shine Auto Spa, Car Wash & Detailing',
+    category: 'car_wash',
+    vehicles: ['car', 'van', 'three_wheel', 'motorcycle'],
+    district: 'Colombo',
+    address: 'Galle Road, Dehiwala',
+    phone: '0786655443',
+    whatsapp: '94786655443',
+    lat: 6.8511,
+    lng: 79.8659,
+    is247: false,
+    verified: true,
+    rating: 4.8,
+    status: 'approved',
+    description: 'Hydraulic underbody wash, foam shampoo detailing, interior steam sanitization, ceramic wax coating & engine bay cleaning.'
+  }
+];
 
-      useEffect(() => {
-        localStorage.setItem("autocare_all_services", JSON.stringify(services));
-      }, [services]);
+// ============================================================================
+// HAVERSINE DISTANCE CALCULATION (KM)
+// ============================================================================
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null;
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((R * c).toFixed(1));
+}
 
-      useEffect(() => {
-        if (user) {
-          localStorage.setItem("autocare_user", JSON.stringify(user));
-        } else {
-          localStorage.removeItem("autocare_user");
-        }
-      }, [user]);
+export default function App() {
+  // 1. Facebook-Style Splash Screen (1.8s on initial launch)
+  const [showSplash, setShowSplash] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1800);
+    return () => clearTimeout(timer);
+  }, []);
 
-      const filteredServices = useMemo(() => {
-        return services.filter((item) => {
-          if (item.status !== "approved" && !isAdminLoggedIn) return false;
-          const matchDistrict = selectedDistrict === "සියලුම දිස්ත්‍රික්ක" || item.district === selectedDistrict;
-          const matchVehicle = selectedVehicle === "all" || item.vehicle === "all" || item.vehicle === selectedVehicle;
-          const matchCategory = selectedCategory === "all" || item.category === selectedCategory;
-          const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.address.toLowerCase().includes(searchQuery.toLowerCase());
-          return matchDistrict && matchVehicle && matchCategory && matchSearch;
-        });
-      }, [services, selectedDistrict, selectedVehicle, selectedCategory, searchQuery, isAdminLoggedIn]);
+  // 2. Multi-Language State ('si' | 'en' | 'ta')
+  const [lang, setLang] = useState('si');
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.si;
+  const handleCycleLanguage = () => {
+    setLang((prev) => (prev === 'si' ? 'en' : prev === 'en' ? 'ta' : 'si'));
+  };
 
-      const openGoogleMaps = (query) => {
-        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query + " Sri Lanka")}`;
-        window.open(url, "_blank");
-      };
+  // 3. Navigation View State ('directory' | 'hotlines' | 'admin') + Add Place Modal
+  const [activeNav, setActiveNav] = useState('directory');
+  const [showAddPlaceModal, setShowAddPlaceModal] = useState(false);
 
-      const handleSocialLogin = (provider) => {
-        // Simulated Social Login
-        const fakeUser = {
-          name: provider === "Google" ? "ශෂික හෂාන් (Google)" : "ශෂික හෂාන් (Facebook)",
-          email: "shashika@example.com",
-          provider: provider
+  // 4. Custom App Logo State (Persisted in localStorage)
+  const [customLogoUrl, setCustomLogoUrl] = useState(() => {
+    try {
+      return localStorage.getItem('autocare_sl_custom_logo') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [logoStatusMsg, setLogoStatusMsg] = useState('');
+
+  const handleSaveLogo = (dataUrl) => {
+    setCustomLogoUrl(dataUrl);
+    try {
+      if (dataUrl) {
+        localStorage.setItem('autocare_sl_custom_logo', dataUrl);
+        setLogoStatusMsg('අලුත් Logo එක සාර්ථකව Save විය! (Saved Successfully)');
+      } else {
+        localStorage.removeItem('autocare_sl_custom_logo');
+        setLogoStatusMsg('Default Logo එක නැවත සකසන ලදී.');
+      }
+    } catch {
+      setLogoStatusMsg('Logo updated for this session.');
+    }
+    setTimeout(() => setLogoStatusMsg(''), 3000);
+  };
+
+  const handleLogoFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        handleSaveLogo(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 5. Service Listings State
+  const [listings, setListings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('autocare_sl_listings_v2');
+      return saved ? JSON.parse(saved) : INITIAL_LISTINGS;
+    } catch {
+      return INITIAL_LISTINGS;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('autocare_sl_listings_v2', JSON.stringify(listings));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [listings]);
+
+  // 6. Search & Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedVehicle, setSelectedVehicle] = useState('all');
+  const [only247, setOnly247] = useState(false);
+
+  // 7. Live GPS Proximity States
+  const [userCoords, setUserCoords] = useState(null);
+  const [gpsStatus, setGpsStatus] = useState('idle');
+  const [gpsLabel, setGpsLabel] = useState('');
+
+  const handleEnableGPS = () => {
+    if (!navigator.geolocation) {
+      const fallback = { lat: 6.9271, lng: 79.8612 };
+      setUserCoords(fallback);
+      setGpsLabel('Colombo, Sri Lanka');
+      setGpsStatus('active');
+      return;
+    }
+    setGpsStatus('loading');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
         };
-        setUser(fakeUser);
-        setActiveTab("services");
-        alert(provider + " හරහා සාර්ථකව ඇතුළු විය!");
-      };
+        setUserCoords(coords);
+        setGpsLabel(`${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`);
+        setGpsStatus('active');
+      },
+      () => {
+        // Fallback coordinates in Colombo if sandbox blocks geolocation
+        const fallback = { lat: 6.9271, lng: 79.8612 };
+        setUserCoords(fallback);
+        setGpsLabel('Colombo Area');
+        setGpsStatus('active');
+      },
+      { enableHighAccuracy: true, timeout: 7000 }
+    );
+  };
 
-      const handleAdminLogin = (e) => {
-        e.preventDefault();
-        if (adminPass === "admin123") {
-          setIsAdminLoggedIn(true);
-          alert("සාර්ථකයි! ඔබ Admin ලෙස ඇතුළු විය.");
-        } else {
-          alert("මුරපදය වැරදියයි! (Admin password: admin123)");
+  // 8. Firebase Config & Admin Authentication States
+  const [firebaseConfig, setFirebaseConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('autocare_sl_fb_config');
+      return saved ? JSON.parse(saved) : DEFAULT_FIREBASE_CONFIG;
+    } catch {
+      return DEFAULT_FIREBASE_CONFIG;
+    }
+  });
+  const [tempFbApiKey, setTempFbApiKey] = useState(firebaseConfig.apiKey || '');
+  const [tempFbAuthDomain, setTempFbAuthDomain] = useState(firebaseConfig.authDomain || '');
+  const [tempFbProjectId, setTempFbProjectId] = useState(firebaseConfig.projectId || '');
+  const [fbSavedToast, setFbSavedToast] = useState('');
+
+  const handleSaveFirebaseConfig = (e) => {
+    e.preventDefault();
+    const updated = {
+      apiKey: tempFbApiKey.trim(),
+      authDomain: tempFbAuthDomain.trim(),
+      projectId: tempFbProjectId.trim(),
+      appId: firebaseConfig.appId || ''
+    };
+    setFirebaseConfig(updated);
+    try {
+      localStorage.setItem('autocare_sl_fb_config', JSON.stringify(updated));
+    } catch {
+      // Ignore storage error
+    }
+    setFbSavedToast('Firebase configuration saved!');
+    setTimeout(() => setFbSavedToast(''), 2500);
+  };
+
+  const [loggedInAdmin, setLoggedInAdmin] = useState(null);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [adminAuthError, setAdminAuthError] = useState('');
+  const [showAdminGoogleChooser, setShowAdminGoogleChooser] = useState(false);
+  const [adminGoogleEmailInput, setAdminGoogleEmailInput] = useState('');
+
+  // 9. Mandatory User Sign-In / Sign-Up Gate States
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('autocare_sl_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [userAuthMode, setUserAuthMode] = useState('signin'); // 'signin' | 'signup'
+  const [userNameInput, setUserNameInput] = useState('');
+  const [userEmailInput, setUserEmailInput] = useState('');
+  const [userPassInput, setUserPassInput] = useState('');
+  const [showUserPass, setShowUserPass] = useState(false);
+  const [userAuthError, setUserAuthError] = useState('');
+  const [showGoogleAccountModal, setShowGoogleAccountModal] = useState(false);
+  const [googleChooserEmail, setGoogleChooserEmail] = useState('');
+  const [googleChooserName, setGoogleChooserName] = useState('');
+  const [showGateFirebaseModal, setShowGateFirebaseModal] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // Sync Auto-Admin recognition if signed in with authorized Admin Gmail
+  useEffect(() => {
+    if (!currentUser?.email) return;
+    const matchedAdmin = ALLOWED_ADMINS.find(
+      (a) => a.email.toLowerCase() === currentUser.email.toLowerCase()
+    );
+    if (matchedAdmin && currentUser.isGoogleVerified) {
+      setLoggedInAdmin({
+        ...matchedAdmin,
+        name: currentUser.name
+          ? `${currentUser.name} (Google Verified)`
+          : `${matchedAdmin.name} (Google)`
+      });
+    }
+  }, [currentUser]);
+
+  const completeUserSignIn = (userObj) => {
+    setCurrentUser(userObj);
+    try {
+      localStorage.setItem('autocare_sl_current_user', JSON.stringify(userObj));
+    } catch {
+      // Ignore storage error
+    }
+    setUserAuthError('');
+    setShowGoogleAccountModal(false);
+    setGoogleChooserEmail('');
+    setGoogleChooserName('');
+  };
+
+  const handleUserSignOut = () => {
+    setCurrentUser(null);
+    setLoggedInAdmin(null);
+    setShowProfileMenu(false);
+    setActiveNav('directory');
+    try {
+      localStorage.removeItem('autocare_sl_current_user');
+    } catch {
+      // Ignore storage error
+    }
+  };
+
+  const handleGoogleChooserSubmit = (e) => {
+    e.preventDefault();
+    const cleanEmail = googleChooserEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setUserAuthError('කරුණාකර නිවැරදි Google Gmail ලිපිනයක් ඇතුළත් කරන්න.');
+      return;
+    }
+    const derivedName =
+      googleChooserName.trim() ||
+      cleanEmail
+        .split('@')[0]
+        .replace(/[._]/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
+    completeUserSignIn({
+      name: derivedName,
+      email: cleanEmail,
+      provider: 'google',
+      isGoogleVerified: true
+    });
+  };
+
+  const handleUserEmailAuthSubmit = (e) => {
+    e.preventDefault();
+    setUserAuthError('');
+    const cleanEmail = userEmailInput.trim().toLowerCase();
+    const cleanPass = userPassInput.trim();
+
+    if (!cleanEmail || !cleanPass) {
+      setUserAuthError('කරුණාකර Email සහ Password ඇතුළත් කරන්න.');
+      return;
+    }
+
+    // Check if signing in directly with verified Admin credentials
+    const matchedAdmin = ALLOWED_ADMINS.find(
+      (a) => a.email.toLowerCase() === cleanEmail && a.pass === cleanPass
+    );
+    if (matchedAdmin) {
+      completeUserSignIn({
+        name: matchedAdmin.name,
+        email: matchedAdmin.email,
+        provider: 'admin-email',
+        isGoogleVerified: true
+      });
+      return;
+    }
+
+    let storedUsers = [];
+    try {
+      storedUsers = JSON.parse(localStorage.getItem('autocare_sl_users') || '[]');
+    } catch {
+      storedUsers = [];
+    }
+
+    if (userAuthMode === 'signup') {
+      if (!userNameInput.trim()) {
+        setUserAuthError('කරුණාකර ඔබගේ නම ඇතුළත් කරන්න.');
+        return;
+      }
+      if (cleanPass.length < 6) {
+        setUserAuthError('Password එක අවම වශයෙන් අකුරු 6ක් විය යුතුය.');
+        return;
+      }
+      const existing = storedUsers.find((u) => u.email === cleanEmail);
+      if (existing) {
+        setUserAuthError('මෙම Email ලිපිනය දැනටමත් ලියාපදිංචි වී ඇත. Sign In වන්න.');
+        return;
+      }
+      const newUser = {
+        name: userNameInput.trim(),
+        email: cleanEmail,
+        pass: cleanPass
+      };
+      try {
+        localStorage.setItem(
+          'autocare_sl_users',
+          JSON.stringify([...storedUsers, newUser])
+        );
+      } catch {
+        // Ignore storage error
+      }
+      completeUserSignIn({
+        name: newUser.name,
+        email: newUser.email,
+        provider: 'email',
+        isGoogleVerified: false
+      });
+    } else {
+      const found = storedUsers.find(
+        (u) => u.email === cleanEmail && u.pass === cleanPass
+      );
+      if (!found) {
+        setUserAuthError(
+          'Email හෝ Password වැරදියි. අලුත් පරිශීලකයෙක් නම් "Sign Up" තෝරන්න.'
+        );
+        return;
+      }
+      completeUserSignIn({
+        name: found.name,
+        email: found.email,
+        provider: 'email',
+        isGoogleVerified: false
+      });
+    }
+  };
+
+  // Admin Manual Login Handler (Strict Credentials, No Auto-Fill)
+  const handleAdminLoginSubmit = (e) => {
+    e.preventDefault();
+    setAdminAuthError('');
+    const matched = ALLOWED_ADMINS.find(
+      (a) =>
+        a.email.toLowerCase() === adminEmail.trim().toLowerCase() &&
+        a.pass === adminPassword
+    );
+
+    if (matched) {
+      setLoggedInAdmin(matched);
+      setShowAdminModal(false);
+      setActiveNav('admin');
+      setAdminEmail('');
+      setAdminPassword('');
+      setShowAdminPassword(false);
+    } else {
+      setAdminAuthError('Invalid Admin Email or Password. Access Denied.');
+    }
+  };
+
+  // Admin Google Sign-In Whitelist Verification
+  const handleAdminGoogleVerify = (e) => {
+    e.preventDefault();
+    setAdminAuthError('');
+    const cleanEmail = adminGoogleEmailInput.trim().toLowerCase();
+    const matched = ALLOWED_ADMINS.find(
+      (a) => a.email.toLowerCase() === cleanEmail
+    );
+    if (matched) {
+      setLoggedInAdmin({
+        ...matched,
+        name: `${matched.name} (Google Verified)`
+      });
+      setShowAdminGoogleChooser(false);
+      setShowAdminModal(false);
+      setActiveNav('admin');
+      setAdminGoogleEmailInput('');
+    } else {
+      setAdminAuthError(
+        `Unauthorized Email (${cleanEmail}): Only authorized admins can access this panel.`
+      );
+    }
+  };
+
+  const handleApproveListing = (id) => {
+    setListings((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, status: 'approved', verified: true } : item
+      )
+    );
+  };
+
+  const handleDeleteListing = (id) => {
+    setListings((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  // 10. Add New Place Modal Form State
+  const [formState, setFormState] = useState({
+    name: '',
+    category: 'recovery',
+    vehicles: ['car', 'van'],
+    district: 'Colombo',
+    address: '',
+    phone: '',
+    whatsapp: '',
+    is247: true,
+    description: ''
+  });
+  const [formToast, setFormToast] = useState('');
+
+  const toggleFormVehicle = (vId) => {
+    setFormState((prev) => {
+      const exists = prev.vehicles.includes(vId);
+      if (exists && prev.vehicles.length === 1) return prev;
+      return {
+        ...prev,
+        vehicles: exists
+          ? prev.vehicles.filter((v) => v !== vId)
+          : [...prev.vehicles, vId]
+      };
+    });
+  };
+
+  const handleAddPlaceSubmit = (e) => {
+    e.preventDefault();
+    if (!formState.name.trim() || !formState.address.trim() || !formState.phone.trim()) {
+      return;
+    }
+
+    const districtCoordsMap = {
+      Colombo: { lat: 6.9271, lng: 79.8612 },
+      Gampaha: { lat: 7.084, lng: 80.0098 },
+      Kalutara: { lat: 6.5854, lng: 79.9607 },
+      Kandy: { lat: 7.2906, lng: 80.6337 },
+      Matale: { lat: 7.4675, lng: 80.6234 },
+      'Nuwara Eliya': { lat: 6.9497, lng: 80.7891 },
+      Galle: { lat: 6.0535, lng: 80.221 },
+      Matara: { lat: 5.9549, lng: 80.555 },
+      Hambantota: { lat: 6.1429, lng: 81.1212 },
+      Jaffna: { lat: 9.6615, lng: 80.0255 },
+      Kurunegala: { lat: 7.4818, lng: 80.3609 },
+      Anuradhapura: { lat: 8.3114, lng: 80.4037 },
+      Badulla: { lat: 6.9934, lng: 81.055 },
+      Ratnapura: { lat: 6.7056, lng: 80.3847 }
+    };
+
+    const baseCoords =
+      userCoords ||
+      districtCoordsMap[formState.district] || { lat: 6.9271, lng: 79.8612 };
+
+    const cleanWa = formState.whatsapp
+      ? formState.whatsapp.replace(/[^0-9]/g, '')
+      : formState.phone.replace(/^0/, '94').replace(/[^0-9]/g, '');
+
+    const newEntry = {
+      id: `srv-${Date.now()}`,
+      name: formState.name.trim(),
+      category: formState.category,
+      vehicles: formState.vehicles,
+      district: formState.district,
+      address: formState.address.trim(),
+      phone: formState.phone.trim(),
+      whatsapp: cleanWa,
+      lat: baseCoords.lat,
+      lng: baseCoords.lng,
+      is247: formState.is247,
+      verified: false,
+      rating: 5.0,
+      status: 'pending',
+      description:
+        formState.description.trim() ||
+        '24/7 Reliable vehicle breakdown, recovery and workshop support.'
+    };
+
+    setListings((prev) => [newEntry, ...prev]);
+    setFormToast(
+      'ඔබගේ ස්ථානය සාර්ථකව ඇතුළත් විය! Admin අනුමැතියෙන් (Pending Verification) පසු සජීවීව පළ වේ.'
+    );
+
+    setFormState({
+      name: '',
+      category: 'recovery',
+      vehicles: ['car', 'van'],
+      district: 'Colombo',
+      address: '',
+      phone: '',
+      whatsapp: '',
+      is247: true,
+      description: ''
+    });
+
+    setTimeout(() => {
+      setFormToast('');
+      setShowAddPlaceModal(false);
+      setActiveNav('directory');
+    }, 2000);
+  };
+
+  // 11. Filtered & GPS-Sorted Directory Listings
+  const filteredApprovedListings = useMemo(() => {
+    return listings
+      .filter((item) => item.status === 'approved')
+      .filter((item) => {
+        if (only247 && !item.is247) return false;
+        if (selectedDistrict !== 'all' && item.district !== selectedDistrict) {
+          return false;
         }
-      };
-
-      const handleAddShopSubmit = (e) => {
-        e.preventDefault();
-        if (!shopName || !shopPhone || !shopAddress) {
-          alert("කරුණාකර සියලුම අත්‍යවශ්‍ය විස්තර පුරවන්න!");
-          return;
+        if (selectedCategory !== 'all' && item.category !== selectedCategory) {
+          return false;
         }
-
-        const newShop = {
-          id: Date.now(),
-          name: shopName,
-          district: shopDistrict,
-          vehicle: shopVehicle,
-          category: shopCategory,
-          desc: shopDesc || "වාහන සේවා මධ්‍යස්ථානය",
-          phone: shopPhone,
-          address: shopAddress,
-          status: isAdminLoggedIn ? "approved" : "pending" // Admin ද දැමූහොත් කෙළින්ම Approve වේ
-        };
-
-        setServices([newShop, ...services]);
-        setShopName("");
-        setShopPhone("");
-        setShopAddress("");
-        setShopDesc("");
-
-        if (isAdminLoggedIn) {
-          alert("සේවා ස්ථානය සාර්ථකව එකතු කරන ලදී!");
-        } else {
-          alert("ඔබගේ ෂොප් එක සාර්ථකව යොමු කරන ලදී! Admin විසින් පරීක්ෂා කර අනුමත කළ පසු ප්‍රදර්ශනය කෙරේ.");
+        if (selectedVehicle !== 'all' && !item.vehicles.includes(selectedVehicle)) {
+          return false;
         }
-        setActiveTab("services");
-      };
-
-      const handleApprove = (id) => {
-        setServices(services.map(s => s.id === id ? {...s, status: "approved"} : s));
-      };
-
-      const handleDelete = (id) => {
-        if (confirm("මෙම සේවාව ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?")) {
-          setServices(services.filter(s => s.id !== id));
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          const matchName = item.name.toLowerCase().includes(q);
+          const matchAddr = item.address.toLowerCase().includes(q);
+          const matchDist = item.district.toLowerCase().includes(q);
+          const matchDesc = item.description.toLowerCase().includes(q);
+          if (!matchName && !matchAddr && !matchDist && !matchDesc) return false;
         }
-      };
+        return true;
+      })
+      .map((item) => {
+        const distanceKm = userCoords
+          ? calculateDistanceKm(userCoords.lat, userCoords.lng, item.lat, item.lng)
+          : null;
+        return { ...item, distanceKm };
+      })
+      .sort((a, b) => {
+        if (userCoords && a.distanceKm !== null && b.distanceKm !== null) {
+          return a.distanceKm - b.distanceKm;
+        }
+        return b.rating - a.rating;
+      });
+  }, [
+    listings,
+    only247,
+    selectedDistrict,
+    selectedCategory,
+    selectedVehicle,
+    searchQuery,
+    userCoords
+  ]);
 
-      return (
-        <div className="min-h-screen bg-slate-950 text-white pb-20">
-          {/* Top Bar */}
-          <div className="bg-slate-900 border-b border-slate-800 sticky top-0 z-10 px-4 py-3 shadow-md">
-            <div className="max-w-md mx-auto flex justify-between items-center">
-              <div>
-                <h1 className="text-base font-extrabold text-red-500 tracking-tight">Auto Care Sri Lanka</h1>
-                <p className="text-[10px] text-slate-400">වාහන සේවා සහ හදිසි සහන</p>
-              </div>
-              <div className="flex gap-1.5 items-center">
-                <button 
-                  onClick={() => setActiveTab("emergency")}
-                  className={`px-2 py-1 rounded-xl text-[10px] font-bold ${activeTab === "emergency" ? "bg-red-600 text-white" : "bg-slate-800 text-slate-300 border border-slate-700"}`}
-                >
-                  🚨 හදිසි
-                </button>
-                <button 
-                  onClick={() => setActiveTab("addShop")}
-                  className={`px-2 py-1 rounded-xl text-[10px] font-bold ${activeTab === "addShop" ? "bg-red-600 text-white" : "bg-slate-800 text-slate-300 border border-slate-700"}`}
-                >
-                  ➕ Shop දමන්න
-                </button>
-                {user ? (
-                  <button 
-                    onClick={() => { setUser(null); setIsAdminLoggedIn(false); }}
-                    className="px-2 py-1 rounded-xl text-[10px] font-bold bg-slate-800 text-red-400 border border-slate-700"
-                    title="Logout"
-                  >
-                    Logout
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => setActiveTab("login")}
-                    className={`px-2 py-1 rounded-xl text-[10px] font-bold ${activeTab === "login" ? "bg-red-600 text-white" : "bg-slate-800 text-slate-300 border border-slate-700"}`}
-                  >
-                    👤 Login
-                  </button>
-                )}
-              </div>
-            </div>
+  const pendingListings = useMemo(
+    () => listings.filter((item) => item.status === 'pending'),
+    [listings]
+  );
+
+  const approvedListings = useMemo(
+    () => listings.filter((item) => item.status === 'approved'),
+    [listings]
+  );
+
+  const getCategoryMeta = (catId) => {
+    return SERVICE_CATEGORIES.find((c) => c.id === catId) || SERVICE_CATEGORIES[0];
+  };
+
+  // ==========================================================================
+  // 1. FACEBOOK-STYLE LAUNCH SPLASH SCREEN (1.8 SECONDS)
+  // ==========================================================================
+  if (showSplash) {
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-between py-14 px-6 select-none">
+        <div />
+        <div className="flex flex-col items-center text-center">
+          <div className="p-2.5 rounded-[34px] bg-red-600/15 border border-red-500/30 shadow-2xl shadow-red-600/30 mb-5">
+            <AppLogoDisplay
+              customLogoUrl={customLogoUrl}
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-[26px]"
+            />
           </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+            AUTO CARE <span className="text-red-500">SRI LANKA</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 font-medium mt-1.5">
+            24/7 Islandwide Vehicle Breakdown &amp; Recovery Network
+          </p>
+        </div>
 
-          <div className="max-w-md mx-auto p-4">
-            {activeTab === "emergency" ? (
-              /* Emergency View */
-              <div className="space-y-4">
-                <div className="bg-red-950/50 border border-red-800 p-4 rounded-2xl text-center">
-                  <h2 className="text-base font-bold text-red-400">හදිසි ආපදා සහ ආරක්ෂක අංක</h2>
-                  <p className="text-xs text-slate-300 mt-1">ක්ෂණිකව ඇමතුමක් ලබා ගැනීමට පහත අංක ඔබන්න</p>
-                </div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-bounce" />
+            <span
+              className="w-2.5 h-2.5 rounded-full bg-red-500 animate-bounce"
+              style={{ animationDelay: '150ms' }}
+            />
+            <span
+              className="w-2.5 h-2.5 rounded-full bg-red-400 animate-bounce"
+              style={{ animationDelay: '300ms' }}
+            />
+          </div>
+          <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold">
+            Powered by Auto Care SL
+          </span>
+        </div>
+      </div>
+    );
+  }
 
-                <div className="grid grid-cols-1 gap-3">
-                  {EMERGENCY_NUMBERS.map((em, idx) => (
-                    <a 
-                      key={idx} 
-                      href={`tel:${em.number}`}
-                      className={`${em.color} p-4 rounded-2xl shadow-lg flex justify-between items-center active:scale-95 transition`}
-                    >
-                      <div>
-                        <p className="font-bold text-base">{em.label}</p>
-                        <p className="text-xs opacity-90">පැය 24 පුරා ක්‍රියාත්මකයි</p>
-                      </div>
-                      <span className="bg-white text-slate-900 font-black text-xl px-4 py-2 rounded-xl shadow">
-                        {em.number}
-                      </span>
-                    </a>
-                  ))}
-                </div>
+  // ==========================================================================
+  // 2. USER SIGN-IN / SIGN-UP GATE SCREEN (BEFORE MAIN APP)
+  // ==========================================================================
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4 sm:p-6">
+        {/* Top Bar: Optional Firebase Gear + Language Switcher */}
+        <div className="max-w-md w-full mx-auto flex items-center justify-between pt-1">
+          <button
+            type="button"
+            onClick={() => setShowGateFirebaseModal((prev) => !prev)}
+            title="Optional Firebase Google OAuth Settings"
+            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-amber-400 transition"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
 
-                <button 
-                  onClick={() => openGoogleMaps("Nearest Police Station or Hospital")}
-                  className="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl font-bold text-sm text-center hover:bg-slate-800 transition mt-4"
-                >
-                  📍 ළඟම ඇති පොලිස් ස්ථානය / රෝහල සිතියමෙන් බලන්න
-                </button>
+          <button
+            type="button"
+            onClick={handleCycleLanguage}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white text-xs font-extrabold flex items-center gap-1.5 transition"
+          >
+            <Globe className="w-3.5 h-3.5 text-red-400" />
+            <span>{lang === 'si' ? 'සිංහල' : lang === 'en' ? 'EN' : 'தமிழ்'}</span>
+          </button>
+        </div>
 
-                <button 
-                  onClick={() => setActiveTab("services")}
-                  className="w-full bg-red-600 text-white p-3 rounded-xl font-bold text-xs text-center mt-4"
-                >
-                  ← මුල් පිටුවට යන්න
-                </button>
+        {/* Center Auth Card */}
+        <div className="max-w-md w-full mx-auto my-auto py-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
+            {/* Logo & Title */}
+            <div className="text-center space-y-2">
+              <div className="inline-block p-1.5 rounded-[26px] bg-red-600/15 border border-red-500/30 shadow-xl shadow-red-600/20">
+                <AppLogoDisplay
+                  customLogoUrl={customLogoUrl}
+                  className="w-16 h-16 rounded-[20px]"
+                />
               </div>
-            ) : activeTab === "login" ? (
-              /* Login / Admin View */
-              <div className="space-y-4">
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center">
-                  <h2 className="text-base font-bold text-white mb-1">ගිණුමට ඇතුළු වන්න (Sign In)</h2>
-                  <p className="text-xs text-slate-400 mb-4">සමාජ ජාල ගිණුම් හරහා පහසුවෙන් ලොග් වන්න</p>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                AUTO CARE <span className="text-red-500">SRI LANKA</span>
+              </h1>
+              <p className="text-xs text-slate-300 font-semibold">
+                {t.authWelcome}
+              </p>
+              <p className="text-[11px] text-slate-400">{t.authSubtitle}</p>
+            </div>
 
-                  <div className="space-y-2">
-                    <button 
-                      onClick={() => handleSocialLogin("Google")}
-                      className="w-full bg-white text-slate-900 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition shadow"
-                    >
-                      🌐 Google හරහා ලොග් වන්න
-                    </button>
-                    <button 
-                      onClick={() => handleSocialLogin("Facebook")}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow"
-                    >
-                      📘 Facebook හරහා ලොග් වන්න
-                    </button>
-                  </div>
-                </div>
-
-                {/* Admin Login Box */}
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                  <h3 className="text-sm font-bold text-red-400 mb-1">⚙️ Admin පාලක ප්‍රවේශය</h3>
-                  <p className="text-[11px] text-slate-400 mb-3">පරිපාලකවරයෙක් නම් මුරපදය ලබා දී ඇතුළු වන්න.</p>
-
-                  {isAdminLoggedIn ? (
-                    <div className="bg-emerald-950/40 border border-emerald-800 p-3 rounded-xl text-center">
-                      <p className="text-emerald-400 font-bold text-xs">✅ ඔබ දැනට Admin ලෙස ලොග් වී සිටී!</p>
-                      <button 
-                        onClick={() => setActiveTab("adminPanel")}
-                        className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-lg w-full transition"
-                      >
-                        Admin පැනලය විවෘත කරන්න
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleAdminLogin} className="space-y-2">
-                      <input 
-                        type="password" 
-                        placeholder="Admin password (admin123)"
-                        value={adminPass}
-                        onChange={(e) => setAdminPass(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                      />
-                      <button 
-                        type="submit"
-                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition"
-                      >
-                        Admin ලෙස ලොග් වන්න
-                      </button>
-                    </form>
-                  )}
-                </div>
-
-                <button 
-                  onClick={() => setActiveTab("services")}
-                  className="w-full bg-slate-800 text-slate-300 p-3 rounded-xl font-bold text-xs text-center"
-                >
-                  ← නැවත සේවා වෙත
-                </button>
-              </div>
-            ) : activeTab === "adminPanel" && isAdminLoggedIn ? (
-              /* Admin Panel for Approvals */
-              <div className="space-y-4">
-                <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                  <h2 className="text-base font-bold text-red-500 mb-1">⚙️ Admin Panel - අනුමත කිරීම් (Approvals)</h2>
-                  <p className="text-xs text-slate-400 mb-3">පරිශීලකයන් විසින් යොමු කළ සහ අනුමත කළ යුතු ෂොප්ස්:</p>
-
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {services.length === 0 ? (
-                      <p className="text-xs text-slate-500 text-center py-4">සේවා ස්ථාන නොමැත.</p>
-                    ) : (
-                      services.map(s => (
-                        <div key={s.id} className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-bold text-white text-sm">{s.name}</h4>
-                              <p className="text-[11px] text-slate-400">{s.district} | {s.phone} | {s.vehicle}</p>
-                            </div>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${s.status === "approved" ? "bg-emerald-950 text-emerald-400 border border-emerald-800" : "bg-amber-950 text-amber-400 border border-amber-800"}`}>
-                              {s.status === "approved" ? "Approved" : "Pending"}
-                            </span>
-                          </div>
-                          
-                          <div className="flex gap-2 pt-1">
-                            {s.status === "pending" && (
-                              <button 
-                                onClick={() => handleApprove(s.id)}
-                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold py-1.5 rounded-lg transition"
-                              >
-                                ✓ අනුමත කරන්න (Approve)
-                              </button>
-                            )}
-                            <button 
-                              onClick={() => handleDelete(s.id)}
-                              className="bg-red-950 text-red-400 border border-red-800 px-3 py-1.5 rounded-lg text-[11px] font-bold hover:bg-red-900 transition"
-                            >
-                              මකන්න
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  <button 
-                    onClick={() => setActiveTab("services")}
-                    className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs transition mt-4"
-                  >
-                    ← මුල් පිටුවට යන්න
-                  </button>
-                </div>
-              </div>
-            ) : activeTab === "addShop" ? (
-              /* Add Shop Form */
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-                <h2 className="text-base font-bold text-red-500 mb-1">➕ නව ගෙරාජයක් හෝ ෂොප් එකක් එකතු කරන්න</h2>
-                <p className="text-xs text-slate-400 mb-3">ඔබගේ ව්‍යාපාරික ස්ථානය මෙහි ලියාපදිංචි කරන්න.</p>
-
-                <form onSubmit={handleAddShopSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-xs text-slate-300 mb-1">ආයතනයේ නම *</label>
-                    <input 
-                      type="text" 
-                      value={shopName} 
-                      onChange={(e) => setShopName(e.target.value)}
-                      placeholder="උදා: Kandy Auto Hub" 
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-xs text-slate-300 mb-1">දිස්ත්‍රික්කය</label>
-                      <select 
-                        value={shopDistrict} 
-                        onChange={(e) => setShopDistrict(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                      >
-                        {DISTRICTS.filter(d => d !== "සියලුම දිස්ත්‍රික්ක").map(d => (
-                          <option key={d} value={d}>{d}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs text-slate-300 mb-1">වාහන වර්ගය</label>
-                      <select 
-                        value={shopVehicle} 
-                        onChange={(e) => setShopVehicle(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                      >
-                        {VEHICLE_TYPES.filter(v => v.id !== "all").map(v => (
-                          <option key={v.id} value={v.id}>{v.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-xs text-slate-300 mb-1">සේවා කාණ්ඩය</label>
-                      <select 
-                        value={shopCategory} 
-                        onChange={(e) => setShopCategory(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                      >
-                        {CATEGORIES.filter(c => c.id !== "all").map(c => (
-                          <option key={c.id} value={c.id}>{c.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs text-slate-300 mb-1">දුරකථන අංකය *</label>
-                      <input 
-                        type="text" 
-                        value={shopPhone} 
-                        onChange={(e) => setShopPhone(e.target.value)}
-                        placeholder="0771234567" 
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-slate-300 mb-1">ලිපිනය / නගරය *</label>
-                    <input 
-                      type="text" 
-                      value={shopAddress} 
-                      onChange={(e) => setShopAddress(e.target.value)}
-                      placeholder="පේරාදෙණිය පාර, මහනුවර" 
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-slate-300 mb-1">විස්තරය</label>
-                    <input 
-                      type="text" 
-                      value={shopDesc} 
-                      onChange={(e) => setShopDesc(e.target.value)}
-                      placeholder="එන්ජින් ටියුන්-අප් සහ බැටරි සේවා" 
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs focus:outline-none focus:border-red-500"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit" 
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition text-xs shadow-lg mt-2"
-                  >
-                    🚀 යොමු කරන්න (Submit)
-                  </button>
-
-                  <button 
+            {/* Optional Firebase Setup Panel */}
+            {showGateFirebaseModal && (
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-amber-500/40 space-y-2.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-amber-400">
+                    Firebase Web Config (Optional)
+                  </span>
+                  <button
                     type="button"
-                    onClick={() => setActiveTab("services")}
-                    className="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl transition text-xs mt-1"
+                    onClick={() => setShowGateFirebaseModal(false)}
+                    className="text-slate-400 hover:text-white"
                   >
-                    ← უკ어가න්න
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                {fbSavedToast && (
+                  <p className="text-emerald-400 font-bold text-[11px]">
+                    {fbSavedToast}
+                  </p>
+                )}
+                <form onSubmit={handleSaveFirebaseConfig} className="space-y-2">
+                  <input
+                    type="text"
+                    value={tempFbApiKey}
+                    onChange={(e) => setTempFbApiKey(e.target.value)}
+                    placeholder="Firebase apiKey (AIzaSy...)"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                  />
+                  <input
+                    type="text"
+                    value={tempFbAuthDomain}
+                    onChange={(e) => setTempFbAuthDomain(e.target.value)}
+                    placeholder="authDomain (app.firebaseapp.com)"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                  />
+                  <input
+                    type="text"
+                    value={tempFbProjectId}
+                    onChange={(e) => setTempFbProjectId(e.target.value)}
+                    placeholder="projectId (your-project-id)"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2 rounded-lg text-xs transition"
+                  >
+                    Save Firebase Config
                   </button>
                 </form>
               </div>
-            ) : (
-              /* Main Directory View */
-              <div>
-                {/* Search & Filters */}
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 mb-4 shadow-sm">
-                  <input 
-                    type="text"
-                    placeholder="ගෙරාජ්, ටෝවිං හෝ නගරය සොයන්න..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-950 text-white text-sm border border-slate-700 rounded-xl px-4 py-2.5 focus:outline-none focus:border-red-500"
-                  />
+            )}
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <select 
-                      value={selectedDistrict} 
-                      onChange={(e) => setSelectedDistrict(e.target.value)}
-                      className="w-full bg-slate-950 text-white text-xs border border-slate-700 rounded-xl px-3 py-2.5 focus:outline-none focus:border-red-500"
-                    >
-                      {DISTRICTS.map((dist) => (
-                        <option key={dist} value={dist}>{dist}</option>
-                      ))}
-                    </select>
-
-                    <select 
-                      value={selectedVehicle} 
-                      onChange={(e) => setSelectedVehicle(e.target.value)}
-                      className="w-full bg-slate-950 text-white text-xs border border-slate-700 rounded-xl px-3 py-2.5 focus:outline-none focus:border-red-500"
-                    >
-                      {VEHICLE_TYPES.map((v) => (
-                        <option key={v.id} value={v.id}>{v.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Category Pills */}
-                  <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    {CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
-                          selectedCategory === cat.id 
-                            ? "bg-red-600 text-white" 
-                            : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                        }`}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quick Nearby Live Map Button */}
-                <button 
-                  onClick={() => openGoogleMaps(selectedDistrict === "සියලුම දිස්ත්‍රික්ක" ? "Car Repair Garage" : `Car Repair Garage in ${selectedDistrict}`)}
-                  className="w-full bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-bold py-2.5 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 hover:bg-blue-600/30 transition shadow-sm"
-                >
-                  🗺️ Google Maps හරහා ළඟම තියෙන ගෙරාජ් සොයන්න (Live Map)
-                </button>
-
-                {/* Results Count & Admin Link if Logged in */}
-                <div className="flex justify-between items-center mb-3 px-1">
-                  <span className="text-xs text-slate-400">
-                    සේවා ස්ථාන ({filteredServices.length})
-                  </span>
-                  {isAdminLoggedIn && (
-                    <button 
-                      onClick={() => setActiveTab("adminPanel")}
-                      className="text-xs text-red-400 font-bold underline"
-                    >
-                      ⚙️ Admin Panel වෙත යන්න
-                    </button>
-                  )}
-                </div>
-
-                {/* Service Cards */}
-                <div className="space-y-3">
-                  {filteredServices.length === 0 ? (
-                    <div className="bg-slate-900 p-8 rounded-2xl text-center border border-slate-800">
-                      <p className="text-slate-400 text-sm">මෙම තේරීමට අදාළ සේවා ස්ථාන දැනට නොමැත.</p>
-                      <button 
-                        onClick={() => setActiveTab("addShop")}
-                        className="mt-3 bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-xl shadow"
-                      >
-                        ➕ ෂොප් එකක් එකතු කරන්න
-                      </button>
-                    </div>
-                  ) : (
-                    filteredServices.map((service) => (
-                      <div key={service.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-sm">
-                        <div className="flex justify-between items-start mb-1">
-                          <h3 className="font-bold text-white text-base">{service.name}</h3>
-                          <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-700">
-                            {service.district}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-400 mb-2">{service.desc}</p>
-                        <p className="text-[11px] text-slate-500 mb-3">📍 {service.address} | වාහන: <span className="text-slate-300 uppercase">{service.vehicle}</span></p>
-                        
-                        <div className="flex gap-2">
-                          <a 
-                            href={`tel:${service.phone}`}
-                            className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl text-center transition"
-                          >
-                            📞 ඇමතුම් ({service.phone})
-                          </a>
-                          <button 
-                            onClick={() => openGoogleMaps(`${service.name} ${service.address}`)}
-                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition"
-                          >
-                            🗺️ Map
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+            {userAuthError && (
+              <div className="p-3 rounded-xl bg-red-950 border border-red-500/50 text-red-200 text-xs text-center font-semibold">
+                {userAuthError}
               </div>
             )}
+
+            {/* Primary Continue with Google Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setUserAuthError('');
+                setShowGoogleAccountModal(true);
+              }}
+              className="w-full bg-white hover:bg-slate-100 active:scale-[0.99] text-slate-950 font-black text-xs sm:text-sm py-3.5 px-4 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition"
+            >
+              <GoogleIconSVG className="w-5 h-5 shrink-0" />
+              <span>{t.continueGoogle}</span>
+            </button>
+
+            {/* OR Divider */}
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-800 w-full" />
+              <span className="bg-slate-900 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                OR
+              </span>
+              <div className="border-t border-slate-800 w-full" />
+            </div>
+
+            {/* Sign In / Sign Up Mode Tabs */}
+            <div className="grid grid-cols-2 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setUserAuthMode('signin');
+                  setUserAuthError('');
+                }}
+                className={`py-2 rounded-lg text-xs font-extrabold transition ${
+                  userAuthMode === 'signin'
+                    ? 'bg-red-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {t.signInTab}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUserAuthMode('signup');
+                  setUserAuthError('');
+                }}
+                className={`py-2 rounded-lg text-xs font-extrabold transition ${
+                  userAuthMode === 'signup'
+                    ? 'bg-red-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {t.signUpTab}
+              </button>
+            </div>
+
+            {/* Email & Password Form */}
+            <form onSubmit={handleUserEmailAuthSubmit} className="space-y-3 text-xs">
+              {userAuthMode === 'signup' && (
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">
+                    සම්පූර්ණ නම (Full Name)
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                    <input
+                      type="text"
+                      required
+                      value={userNameInput}
+                      onChange={(e) => setUserNameInput(e.target.value)}
+                      placeholder="උදා: කසුන් පෙරේරා"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                  <input
+                    type="email"
+                    required
+                    value={userEmailInput}
+                    onChange={(e) => setUserEmailInput(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-red-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                  <input
+                    type={showUserPass ? 'text' : 'password'}
+                    required
+                    value={userPassInput}
+                    onChange={(e) => setUserPassInput(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-red-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowUserPass((prev) => !prev)}
+                    aria-label={showUserPass ? 'Hide password' : 'Show password'}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
+                  >
+                    {showUserPass ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-red-600 hover:bg-red-500 text-white font-black text-sm py-3 rounded-xl shadow-lg shadow-red-600/25 transition"
+              >
+                {userAuthMode === 'signup'
+                  ? 'Create Account & Continue'
+                  : 'Sign In to Auto Care SL'}
+              </button>
+            </form>
           </div>
         </div>
-      );
-    }
 
-    const container = document.getElementById('root');
-    const root = ReactDOM.createRoot(container);
-    root.render(<App />);
-  </script>
-</body>
-</html>
+        <p className="text-center text-[11px] text-slate-500 pb-2">
+          24/7 Islandwide Recovery, Garages, Fuel &amp; Emergency Support
+        </p>
+
+        {/* Realistic Google Account Chooser Modal */}
+        {showGoogleAccountModal && (
+          <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white text-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative space-y-4">
+              <button
+                type="button"
+                onClick={() => setShowGoogleAccountModal(false)}
+                className="absolute right-4 top-4 text-slate-400 hover:text-slate-700 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="text-center space-y-1.5 pt-1">
+                <GoogleIconSVG className="w-8 h-8 mx-auto" />
+                <h3 className="text-lg font-extrabold text-slate-900">
+                  Sign in with Google
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Continue to <span className="font-bold text-slate-700">Auto Care Sri Lanka</span>
+                </p>
+              </div>
+
+              <form onSubmit={handleGoogleChooserSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Full Name (නම)
+                  </label>
+                  <input
+                    type="text"
+                    value={googleChooserName}
+                    onChange={(e) => setGoogleChooserName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Google Gmail Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={googleChooserEmail}
+                    onChange={(e) => setGoogleChooserEmail(e.target.value)}
+                    placeholder="yourname@gmail.com"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3 rounded-xl shadow-md transition"
+                >
+                  Continue with Google Account
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ==========================================================================
+  // 3. MAIN APPLICATION VIEW (AFTER SIGN-IN)
+  // ==========================================================================
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-24">
+      {/* LIVE GPS PROXIMITY BANNER */}
+      <div
+        className={`border-b px-3 py-2.5 transition-colors ${
+          userCoords
+            ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-100'
+            : 'bg-amber-500/15 border-amber-400/40 text-amber-100'
+        }`}
+      >
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+            <Compass
+              className={`w-4 h-4 shrink-0 ${
+                userCoords ? 'text-emerald-400' : 'text-amber-400 animate-pulse'
+              }`}
+            />
+            <span>
+              {userCoords ? `${t.gpsActive} (${gpsLabel})` : t.gpsPrompt}
+            </span>
+          </div>
+
+          <button
+            onClick={handleEnableGPS}
+            disabled={gpsStatus === 'loading'}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1.5 shadow-md transition shrink-0 ${
+              userCoords
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+            }`}
+          >
+            <Navigation
+              className={`w-3.5 h-3.5 ${
+                gpsStatus === 'loading' ? 'animate-spin' : ''
+              }`}
+            />
+            <span>
+              {gpsStatus === 'loading'
+                ? t.gpsLoading
+                : userCoords
+                ? t.gpsBtnUpdate
+                : t.gpsBtnOn}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* STICKY BRAND HEADER WITH LOGO, NAV PILLS, 3-LANGUAGE SWITCHER & USER PROFILE */}
+      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-xl">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
+          {/* Logo + Title */}
+          <div
+            onClick={() => setActiveNav('directory')}
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer min-w-0"
+          >
+            <AppLogoDisplay
+              customLogoUrl={customLogoUrl}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-lg shadow-red-600/25 shrink-0"
+            />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm sm:text-xl font-black tracking-tight text-white truncate">
+                  AUTO CARE <span className="text-red-500">SRI LANKA</span>
+                </h1>
+                <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-bold bg-red-600/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full">
+                  24/7 ISLANDWIDE
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
+                {t.subtitle}
+              </p>
+            </div>
+          </div>
+
+          {/* Desktop Navigation Pills */}
+          <nav className="hidden md:flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setActiveNav('directory')}
+              className={`px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                activeNav === 'directory'
+                  ? 'bg-red-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>{t.navDirectory}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveNav('hotlines')}
+              className={`px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                activeNav === 'hotlines'
+                  ? 'bg-red-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Siren className="w-3.5 h-3.5" />
+              <span>{t.navHotlines}</span>
+            </button>
+
+            <button
+              onClick={() => setShowAddPlaceModal(true)}
+              className="px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900 transition"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-red-400" />
+              <span>{t.navAdd}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (loggedInAdmin) {
+                  setActiveNav('admin');
+                } else {
+                  setShowAdminModal(true);
+                }
+              }}
+              className={`px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                activeNav === 'admin'
+                  ? 'bg-amber-500 text-slate-950 shadow'
+                  : 'text-amber-400 hover:bg-slate-900'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>{t.navAdmin}</span>
+              {pendingListings.length > 0 && (
+                <span className="bg-red-600 text-white text-[10px] px-1.5 rounded-full">
+                  {pendingListings.length}
+                </span>
+              )}
+            </button>
+          </nav>
+
+          {/* Right Controls: Language Switcher + Mobile Admin + User Profile */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleCycleLanguage}
+              title="Switch Language (සිංහල / English / தமிழ்)"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-extrabold flex items-center gap-1.5 transition"
+            >
+              <Globe className="w-3.5 h-3.5 text-red-400" />
+              <span>{lang === 'si' ? 'සිංහල' : lang === 'en' ? 'EN' : 'தமிழ்'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (loggedInAdmin) {
+                  setActiveNav('admin');
+                } else {
+                  setShowAdminModal(true);
+                }
+              }}
+              className="md:hidden px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-amber-400 text-xs font-bold flex items-center gap-1"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Admin</span>
+              {pendingListings.length > 0 && (
+                <span className="bg-red-600 text-white text-[10px] px-1.5 rounded-full">
+                  {pendingListings.length}
+                </span>
+              )}
+            </button>
+
+            {/* User Profile Avatar & Sign Out Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowProfileMenu((prev) => !prev)}
+                className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 transition"
+                title={currentUser.email}
+              >
+                <span className="w-6 h-6 rounded-full bg-red-600 text-white text-xs font-black flex items-center justify-center uppercase">
+                  {(currentUser.name || currentUser.email || 'U').charAt(0)}
+                </span>
+                <span className="hidden sm:inline text-xs font-bold text-slate-200 max-w-[90px] truncate">
+                  {currentUser.name}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-60 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-3 z-50 space-y-2.5">
+                  <div className="pb-2 border-b border-slate-800">
+                    <p className="text-xs font-black text-white truncate">
+                      
