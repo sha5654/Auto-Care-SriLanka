@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-
-export default function App() {
+function App() {
   return (
     <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-slate-700">
