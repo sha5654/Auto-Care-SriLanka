@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auto Care Sri Lanka - Premium</title>
+  <title>Auto Care Sri Lanka - Complete</title>
   <meta name="theme-color" content="#dc2626" />
   
   <!-- Tailwind CSS -->
@@ -14,7 +14,7 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-200 font-sans antialiased pb-20">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
   <div id="root" class="flex items-center justify-center min-h-screen text-slate-400 font-bold text-sm">
     <div class="animate-pulse flex flex-col items-center gap-3">
       <div class="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
@@ -37,7 +37,6 @@
       </svg>
     );
 
-    // 2. MULTILINGUAL DICTIONARY
     const TRANSLATIONS = {
       si: {
         subtitle: 'දිවයින පුරා රිකවරි, ගරාජ්, ඉන්ධන සහ හදිසි වාහන සේවා',
@@ -49,196 +48,381 @@
         navDirectory: 'සේවා සොයන්න',
         navHotlines: 'හදිසි ඇමතුම්',
         navAdd: 'අලුත් ස්ථානයක්',
+        navAdmin: 'Admin',
         searchPlaceholder: 'ගරාජ්, රිකවරි, ඉන්ධන පිරවුම්හල් හෝ නගරය...',
         allDistrictsLabel: 'සියලුම දිස්ත්‍රික්ක (25)',
-        mapBtn: 'Live Map හරහා සොයන්න',
-        noResults: 'මෙම තේරීමට අදාළ සේවා ස්ථාන දැනට නොමැත.',
-        addShopMsg: '➕ ෂොප් එකක් එකතු කරන්න'
-      },
-      en: {
-        subtitle: 'Islandwide Recovery, Garages, Fuel & Emergency Services',
-        gpsPrompt: 'Turn on Location (GPS) to find nearest services',
-        gpsActive: 'GPS Active — Services sorted by distance!',
-        gpsBtnOn: '📍 Turn On GPS',
-        gpsBtnUpdate: '📍 Update GPS',
-        gpsLoading: 'Locating...',
-        navDirectory: 'Directory',
-        navHotlines: 'Hotlines',
-        navAdd: 'Add New',
-        searchPlaceholder: 'Search garages, recovery, fuel or city...',
-        allDistrictsLabel: 'All Districts (25)',
-        mapBtn: 'Find on Live Map',
-        noResults: 'No services found for this selection.',
-        addShopMsg: '➕ Add a Shop'
+        catHeading: 'සේවා වර්ගය',
+        vehHeading: 'වාහන වර්ගය',
+        foundCount: 'හමුවූ සේවා ස්ථාන:',
+        callBtn: 'Call',
+        waBtn: 'WhatsApp',
+        mapsBtn: 'Maps',
+        addTitle: 'අලුත් ස්ථානයක් එක් කරන්න',
+        addSubtitle: 'ඔබගේ ගරාජය, රිකවරි රථය හෝ ඉන්ධන පිරවුම්හල ඇතුළත් කරන්න.',
+        submitBtn: 'Admin අනුමැතිය සඳහා යොමු කරන්න'
       }
     };
 
-    const DISTRICTS = ["සියලුම දිස්ත්‍රික්ක", "කොළඹ", "ගම්පහ", "කළුතර", "මහනුවර", "මාතලේ", "නුවරඑළිය", "ගාල්ල", "මාතර", "හම්බන්තොට", "යාපනය", "කුරුණෑගල", "පුත්තලම", "අනුරාධපුර", "පොළොන්නරුව", "බදුල්ල", "මොණරාගල", "රත්නපුර", "කෑගල්ල", "මඩකලපුව", "අම්පාර", "ත්‍රිකුණාමලය", "වවුනියාව", "මන්නාරම", "කිලිනොච්චිය", "මුලතිව්"];
-    
-    const CATEGORIES = [
-      { id: "all", label: "සියලුම සේවා" },
-      { id: "garage", label: "ගෙරාජ්" },
-      { id: "breakdown", label: "බ්‍රේක්ඩවුන් / ටෝවිං" },
-      { id: "tyre", label: "ටයර් සහ බැටරි" },
-      { id: "parts", label: "අමතර කොටස්" },
-      { id: "fuel", label: "ඉන්ධන පිරවුම්හල්" }
+    const SRI_LANKA_DISTRICTS = [
+      { id: 'all', si: 'සියලුම දිස්ත්‍රික්ක (25)' },
+      { id: 'Colombo', si: 'කොළඹ' }, { id: 'Gampaha', si: 'ගම්පහ' }, { id: 'Kalutara', si: 'කළුතර' },
+      { id: 'Kandy', si: 'මහනුවර' }, { id: 'Matale', si: 'මාතලේ' }, { id: 'Nuwara Eliya', si: 'නුවරඑළිය' },
+      { id: 'Galle', si: 'ගාල්ල' }, { id: 'Matara', si: 'මාතර' }, { id: 'Hambantota', si: 'හම්බන්තොට' },
+      { id: 'Jaffna', si: 'යාපනය' }, { id: 'Kilinochchi', si: 'කිලිනොච්චිය' }, { id: 'Mannar', si: 'මන්නාරම' },
+      { id: 'Vavuniya', si: 'වවුනියාව' }, { id: 'Mullaitivu', si: 'මුලතිව්' }, { id: 'Batticaloa', si: 'මඩකලපුව' },
+      { id: 'Ampara', si: 'අම්පාර' }, { id: 'Trincomalee', si: 'ත්‍රිකුණාමලය' }, { id: 'Kurunegala', si: 'කුරුණෑගල' },
+      { id: 'Puttalam', si: 'පුත්තලම' }, { id: 'Anuradhapura', si: 'අනුරාධපුරය' }, { id: 'Polonnaruwa', si: 'පොළොන්නරුව' },
+      { id: 'Badulla', si: 'බදුල්ල' }, { id: 'Monaragala', si: 'මොණරාගල' }, { id: 'Ratnapura', si: 'රත්නපුරය' }, { id: 'Kegalle', si: 'කෑගල්ල' }
     ];
 
-    const INITIAL_SERVICES = [
-      { id: 1, name: "Colombo Hybrid & Auto Care", district: "කොළඹ", category: "garage", desc: "හයිබ්‍රිඩ් බැටරි සහ එන්ජින් ස්කෑන්", phone: "0112345678", address: "නුගේගොඩ", status: "approved", lat: 6.8649, lng: 79.8997 },
-      { id: 2, name: "Expressway Towing 24/7", district: "ගම්පහ", category: "breakdown", desc: "හදිසි ටෝවිං සහ ප්‍රවාහන සේවය", phone: "0771234567", address: "කඩවත (අධිවේගී පිවිසුම අසල)", status: "approved", lat: 7.0049, lng: 79.9405 },
-      { id: 3, name: "Kandy Bike Care Center", district: "මහනුවර", category: "garage", desc: "මෝටර් සයිකල් ටියුන්-අප් සහ එන්ජින්", phone: "0812233445", address: "පේරාදෙණිය පාර", status: "approved", lat: 7.2906, lng: 80.6337 },
-      { id: 4, name: "Galle Auto Electricals", district: "ගාල්ල", category: "garage", desc: "වාහන වයරින් සහ AC අලුත්වැඩියා", phone: "0912223344", address: "වක්වැල්ල පාර", status: "approved", lat: 6.0328, lng: 80.2149 }
+    const SERVICE_CATEGORIES = [
+      { id: 'all', si: 'සියලුම සේවා' },
+      { id: 'recovery', si: 'රිකවරි / ටෝවින් රථ' },
+      { id: 'mechanical', si: 'යාන්ත්‍රික ගරාජ්' },
+      { id: 'fuel', si: 'ඉන්ධන පිරවුම්හල් (Shed)' },
+      { id: 'tire', si: 'ටයර් සහ පැච්' },
+      { id: 'electrical', si: 'විදුලි සහ බැටරි' },
+      { id: 'ac', si: 'Vehicle AC Repair' },
+      { id: 'spare_parts', si: 'අමතර කොටස්' },
+      { id: 'car_wash', si: 'Car Wash' }
     ];
+
+    const VEHICLE_TYPES = [
+      { id: 'all', si: 'සියලුම වාහන' },
+      { id: 'car', si: 'Car (කාර්)' },
+      { id: 'van', si: 'Van (වෑන්)' },
+      { id: 'motorcycle', si: 'Motorcycle (බයික්)' },
+      { id: 'three_wheel', si: 'ත්‍රීවීල් (Tuk)' },
+      { id: 'bus', si: 'බස් (Bus)' },
+      { id: 'lorry', si: 'ලොරි / Truck' },
+      { id: 'heavy', si: 'බර වාහන (Heavy)' }
+    ];
+
+    const EMERGENCY_HOTLINES = [
+      { id: '119', number: '119', titleSi: 'පොලිස් හදිසි ඇමතුම් අංශය', desc: 'මාර්ග අනතුරු, ආරක්ෂක හදිසි අවස්ථා සහ පොලිස් සහාය සඳහා (24/7)', badge: 'POLICE 24/7', color: 'from-red-600 to-red-800' },
+      { id: '1990', number: '1990', titleSi: 'සුවසැරිය ගිලන් රථ සේවය', desc: 'හදිසි අනතුරු හා වෛද්‍ය ප්‍රතිකාර සඳහා නොමිලේ ගිලන් රථ සේවාව', badge: 'FREE AMBULANCE', color: 'from-emerald-600 to-teal-800' },
+      { id: '1969', number: '1969', titleSi: 'අධිවේගී මාර්ග හදිසි සහාය', desc: 'දක්ෂිණ, කටුනායක, මධ්‍යම අධිවේගී මාර්ග බ්‍රේක්ඩවුන් සහ රිකවරි සහාය', badge: 'HIGHWAY RESCUE', color: 'from-amber-600 to-orange-800' },
+      { id: '110', number: '110', titleSi: 'ගිනි නිවන හමුදාව සහ ගලවා ගැනීම්', desc: 'වාහන ගිනි ගැනීම් සහ හදිසි ගලවා ගැනීමේ මෙහෙයුම් සඳහා', badge: 'FIRE & RESCUE', color: 'from-orange-600 to-red-700' }
+    ];
+
+    const ALLOWED_ADMINS = [
+      { id: 'admin-1', name: 'Shashika (Admin 1)', email: 'shashikah46@gmail.com', pass: 'Adminacs2007' },
+      { id: 'admin-2', name: 'AutoCare Admin 2', email: 'carea3261@gmail.com', pass: 'Adminacs2008' }
+    ];
+
+    const INITIAL_LISTINGS = [
+      { id: 'srv-01', name: 'Lanka Heavy Recovery & Crane Towing Service', category: 'recovery', vehicles: ['bus', 'lorry', 'heavy', 'van', 'car'], district: 'Colombo', address: 'High Level Road, Pannipitiya, Colombo', phone: '0771234567', whatsapp: '94771234567', is247: true, verified: true, rating: 4.9, status: 'approved', description: '24/7 Heavy Boom Truck, Hydraulic Flatbed Carrier & Crane Recovery for Buses and Lorries.' },
+      { id: 'srv-02', name: 'Kandy Hill Country 24/7 Towing & Recovery', category: 'recovery', vehicles: ['bus', 'lorry', 'heavy', 'car', 'van'], district: 'Kandy', address: 'Peradeniya Road, Mulgampola, Kandy', phone: '0714567890', whatsapp: '94714567890', is247: true, verified: true, rating: 4.8, status: 'approved', description: 'Specialized hill-country flatbed recovery across Kadugannawa and Kandy roads.' },
+      { id: 'srv-03', name: 'Ceypetco & Lanka IOC 24H Super Fuel Mart', category: 'fuel', vehicles: ['bus', 'lorry', 'heavy', 'car', 'van', 'three_wheel', 'motorcycle'], district: 'Colombo', address: 'Baseline Road, Borella, Colombo 08', phone: '0112684520', whatsapp: '94772233445', is247: true, verified: true, rating: 4.7, status: 'approved', description: '24-Hour Octane 92/95 Petrol, Super Diesel, Heavy Truck High-Speed Diesel Pumps.' }
+    ];
+
+    function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+      if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null;
+      const R = 6371;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return Number((R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))).toFixed(1));
+    }
 
     function App() {
-      const [lang, setLang] = useState('si');
-      const t = TRANSLATIONS[lang];
+      const t = TRANSLATIONS.si;
+      const [activeNav, setActiveNav] = useState('directory'); // 'directory' | 'hotlines' | 'admin'
       
-      const [activeTab, setActiveTab] = useState("services");
-      
-      // Changed storage key to v3 to bypass any old empty states
-      const [services, setServices] = useState(() => {
-        try { const s = localStorage.getItem("autocare_services_v3"); return s ? JSON.parse(s) : INITIAL_SERVICES; } catch { return INITIAL_SERVICES; }
+      const [customLogoUrl, setCustomLogoUrl] = useState(() => {
+        try { return localStorage.getItem('autocare_sl_custom_logo') || ''; } catch { return ''; }
       });
 
-      const [selectedDistrict, setSelectedDistrict] = useState("සියලුම දිස්ත්‍රික්ක");
-      const [selectedCategory, setSelectedCategory] = useState("all");
-      const [searchQuery, setSearchQuery] = useState("");
-      
-      // GPS State
-      const [gps, setGps] = useState(null);
-      const [gpsLoading, setGpsLoading] = useState(false);
+      const [listings, setListings] = useState(() => {
+        try { const s = localStorage.getItem('autocare_sl_listings_v4'); return s ? JSON.parse(s) : INITIAL_LISTINGS; } catch { return INITIAL_LISTINGS; }
+      });
 
       useEffect(() => {
-        localStorage.setItem("autocare_services_v3", JSON.stringify(services));
-      }, [services]);
+        try { localStorage.setItem('autocare_sl_listings_v4', JSON.stringify(listings)); } catch {}
+      }, [listings]);
 
-      const getLocation = () => {
-        setGpsLoading(true);
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              setGps({ lat: position.coords.latitude, lng: position.coords.longitude });
-              setGpsLoading(false);
-            },
-            (error) => {
-              alert("Location ලබා ගැනීමට නොහැකි විය. කරුණාකර GPS On කරන්න.");
-              setGpsLoading(false);
-            }
-          );
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedDistrict, setSelectedDistrict] = useState('all');
+      const [selectedCategory, setSelectedCategory] = useState('all');
+      const [selectedVehicle, setSelectedVehicle] = useState('all');
+      const [only247, setOnly247] = useState(false);
+
+      // GPS State
+      const [userCoords, setUserCoords] = useState(null);
+      const [gpsStatus, setGpsStatus] = useState('idle');
+      const [gpsLabel, setGpsLabel] = useState('');
+
+      const handleEnableGPS = () => {
+        if (!navigator.geolocation) {
+          setUserCoords({ lat: 6.9271, lng: 79.8612 });
+          setGpsLabel('Colombo');
+          setGpsStatus('active');
+          return;
+        }
+        setGpsStatus('loading');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+            setGpsLabel('ජීපීඑස් සක්‍රීයයි');
+            setGpsStatus('active');
+          },
+          () => {
+            setUserCoords({ lat: 6.9271, lng: 79.8612 });
+            setGpsLabel('Colombo');
+            setGpsStatus('active');
+          }
+        );
+      };
+
+      // Admin Auth State
+      const [loggedInAdmin, setLoggedInAdmin] = useState(null);
+      const [showAdminModal, setShowAdminModal] = useState(false);
+      const [adminEmail, setAdminEmail] = useState('');
+      const [adminPassword, setAdminPassword] = useState('');
+      const [adminAuthError, setAdminAuthError] = useState('');
+
+      const handleAdminLogin = (e) => {
+        e.preventDefault();
+        setAdminAuthError('');
+        const matched = ALLOWED_ADMINS.find(a => a.email.toLowerCase() === adminEmail.trim().toLowerCase() && a.pass === adminPassword);
+        if (matched) {
+          setLoggedInAdmin(matched);
+          setShowAdminModal(false);
+          setActiveNav('admin');
+          setAdminEmail(''); setAdminPassword('');
         } else {
-          alert("ඔබගේ බ්‍රවුසරය GPS සඳහා සහය නොදක්වයි.");
-          setGpsLoading(false);
+          setAdminAuthError('වැරදි Email එකක් හෝ Password එකකි.');
         }
       };
 
-      const filteredServices = useMemo(() => {
-        return services.filter((item) => {
-          if (item.status !== "approved") return false;
-          const matchDistrict = selectedDistrict === "සියලුම දිස්ත්‍රික්ක" || item.district === selectedDistrict;
-          const matchCategory = selectedCategory === "all" || item.category === selectedCategory;
-          const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.address.toLowerCase().includes(searchQuery.toLowerCase());
-          return matchDistrict && matchCategory && matchSearch;
-        });
-      }, [services, selectedDistrict, selectedCategory, searchQuery]);
+      // Add Shop Form State
+      const [showAddModal, setShowAddModal] = useState(false);
+      const [formName, setFormName] = useState('');
+      const [formCategory, setFormCategory] = useState('recovery');
+      const [formVehicles, setFormVehicles] = useState(['car', 'van']);
+      const [formDistrict, setFormDistrict] = useState('Colombo');
+      const [formAddress, setFormAddress] = useState('');
+      const [formPhone, setFormPhone] = useState('');
+      const [formWhatsapp, setFormWhatsapp] = useState('');
+      const [formIs247, setFormIs247] = useState(true);
+      const [formDesc, setFormDesc] = useState('');
+      const [formToast, setFormToast] = useState('');
 
-      const openGoogleMaps = (query) => {
-        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query + " Sri Lanka")}`, "_blank");
+      const toggleFormVehicle = (vId) => {
+        setFormVehicles(prev => prev.includes(vId) ? prev.filter(v => v !== vId) : [...prev, vId]);
       };
 
+      const handleAddSubmit = (e) => {
+        e.preventDefault();
+        if (!formName || !formAddress || !formPhone) return;
+
+        const newShop = {
+          id: `srv-${Date.now()}`,
+          name: formName.trim(),
+          category: formCategory,
+          vehicles: formVehicles,
+          district: formDistrict,
+          address: formAddress.trim(),
+          phone: formPhone.trim(),
+          whatsapp: formWhatsapp.trim() || formPhone.trim(),
+          lat: 6.9271, lng: 79.8612,
+          is247: formIs247,
+          verified: false,
+          rating: 5.0,
+          status: loggedInAdmin ? 'approved' : 'pending',
+          description: formDesc.trim() || 'වාහන හදිසි සහන සහ සේවා මධ්‍යස්ථානය.'
+        };
+
+        setListings([newShop, ...listings]);
+        setFormToast(loggedInAdmin ? 'සේවා ස්ථානය සාර්ථකව එකතු විය!' : 'සාර්ථකයි! Admin අනුමැතියෙන් පසු ප්‍රදර්ශනය කෙරේ.');
+        setTimeout(() => {
+          setFormToast('');
+          setShowAddModal(false);
+          setFormName(''); setFormAddress(''); setFormPhone(''); setFormWhatsapp(''); setFormDesc('');
+        }, 2000);
+      };
+
+      const handleApprove = (id) => {
+        setListings(listings.map(item => item.id === id ? {...item, status: 'approved', verified: true} : item));
+      };
+
+      const handleDelete = (id) => {
+        if (confirm('මෙම සේවාව ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද?')) {
+          setListings(listings.filter(item => item.id !== id));
+        }
+      };
+
+      const filteredListings = useMemo(() => {
+        return listings
+          .filter(item => {
+            if (item.status !== 'approved' && !loggedInAdmin) return false;
+            if (only247 && !item.is247) return false;
+            if (selectedDistrict !== 'all' && item.district !== selectedDistrict) return false;
+            if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
+            if (selectedVehicle !== 'all' && !item.vehicles.includes(selectedVehicle)) return false;
+            if (searchQuery.trim() !== '') {
+              const q = searchQuery.toLowerCase();
+              if (!item.name.toLowerCase().includes(q) && !item.address.toLowerCase().includes(q) && !item.district.toLowerCase().includes(q)) return false;
+            }
+            return true;
+          })
+          .map(item => {
+            const distanceKm = userCoords ? calculateDistanceKm(userCoords.lat, userCoords.lng, item.lat, item.lng) : null;
+            return { ...item, distanceKm };
+          })
+          .sort((a, b) => {
+            if (userCoords && a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
+            return b.rating - a.rating;
+          });
+      }, [listings, only247, selectedDistrict, selectedCategory, selectedVehicle, searchQuery, userCoords, loggedInAdmin]);
+
+      const pendingListings = useMemo(() => listings.filter(item => item.status === 'pending'), [listings]);
+
       return (
-        <div className="min-h-screen bg-slate-950">
-          {/* Top Bar with Language Switcher & Logo */}
-          <div className="bg-slate-900 border-b border-slate-800 sticky top-0 z-20 px-4 py-3 shadow-lg">
-            <div className="max-w-md mx-auto flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <DefaultRedVectorLogo className="w-10 h-10 shadow-lg shadow-red-600/20" />
+        <div className="min-h-screen bg-slate-950 text-slate-100">
+          
+          {/* Top Bar */}
+          <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-xl">
+            <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+              <div onClick={() => setActiveNav('directory')} className="flex items-center gap-2.5 cursor-pointer">
+                <DefaultRedVectorLogo customLogoUrl={customLogoUrl} className="w-10 h-10 rounded-2xl shadow-lg shadow-red-600/25" />
                 <div>
-                  <h1 className="text-base font-extrabold text-red-500 tracking-tight">Auto Care Sri Lanka</h1>
-                  <p className="text-[10px] text-slate-400 font-medium">{t.subtitle.substring(0, 35)}...</p>
+                  <h1 className="text-sm sm:text-base font-black tracking-tight text-white">AUTO CARE <span className="text-red-500">SRI LANKA</span></h1>
+                  <p className="text-[10px] text-slate-400">24/7 Islandwide Recovery & Garages</p>
                 </div>
               </div>
-              <div className="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
-                <button onClick={() => setLang('si')} className={`px-2 py-1 text-[10px] font-bold rounded-md ${lang === 'si' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>SI</button>
-                <button onClick={() => setLang('en')} className={`px-2 py-1 text-[10px] font-bold rounded-md ${lang === 'en' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>EN</button>
+
+              <div className="flex items-center gap-2">
+                <button onClick={() => setActiveNav('directory')} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${activeNav === 'directory' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>සේවා</button>
+                <button onClick={() => setActiveNav('hotlines')} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${activeNav === 'hotlines' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>හදිසි</button>
+                <button onClick={() => setShowAddModal(true)} className="px-3 py-1.5 rounded-xl bg-slate-800 text-red-400 text-xs font-bold">➕ Shop</button>
+                <button onClick={() => { if(loggedInAdmin) setActiveNav('admin'); else setShowAdminModal(true); }} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${activeNav === 'admin' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-amber-400'}`}>
+                  ⚙️ Admin {pendingListings.length > 0 && `(${pendingListings.length})`}
+                </button>
               </div>
             </div>
-            
-            {/* Tabs */}
-            <div className="max-w-md mx-auto flex gap-2 mt-4 overflow-x-auto no-scrollbar">
-              <button onClick={() => setActiveTab('services')} className={`flex-1 min-w-fit px-3 py-2 rounded-xl text-xs font-bold transition ${activeTab === 'services' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-400'}`}>🚗 {t.navDirectory}</button>
-              <button onClick={() => setActiveTab('emergency')} className={`flex-1 min-w-fit px-3 py-2 rounded-xl text-xs font-bold transition ${activeTab === 'emergency' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-400'}`}>🚨 {t.navHotlines}</button>
-              <button onClick={() => setActiveTab('add')} className={`flex-1 min-w-fit px-3 py-2 rounded-xl text-xs font-bold transition ${activeTab === 'add' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-400'}`}>➕ {t.navAdd}</button>
-            </div>
-          </div>
+          </header>
 
-          {/* Main Content Area */}
-          <div className="max-w-md mx-auto p-4">
-            {activeTab === 'services' && (
+          <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
+            
+            {/* GPS Proximity Banner */}
+            <div className={`p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 ${userCoords ? 'bg-emerald-950/60 border-emerald-500/40' : 'bg-blue-950/60 border-blue-500/40'}`}>
+              <span className="text-xs font-bold text-slate-200">{userCoords ? t.gpsActive : t.gpsPrompt}</span>
+              <button onClick={handleEnableGPS} className={`px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow ${userCoords ? 'bg-emerald-600' : 'bg-blue-600'}`}>
+                {gpsStatus === 'loading' ? t.gpsLoading : (userCoords ? t.gpsBtnUpdate : t.gpsBtnOn)}
+              </button>
+            </div>
+
+            {/* DIRECTORY VIEW */}
+            {activeNav === 'directory' && (
               <div className="space-y-4">
                 
-                {/* GPS Banner */}
-                <div className={`p-4 rounded-2xl border ${gps ? 'bg-emerald-950/40 border-emerald-800' : 'bg-blue-950/40 border-blue-800'} flex flex-col items-center text-center gap-2 shadow-sm`}>
-                  <p className={`text-xs font-bold ${gps ? 'text-emerald-400' : 'text-blue-400'}`}>
-                    {gps ? t.gpsActive : t.gpsPrompt}
-                  </p>
-                  <button onClick={getLocation} className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-lg transition ${gps ? 'bg-emerald-600' : 'bg-blue-600'} flex items-center justify-center min-w-[120px]`}>
-                    {gpsLoading ? t.gpsLoading : (gps ? t.gpsBtnUpdate : t.gpsBtnOn)}
-                  </button>
-                </div>
-
-                {/* Filters */}
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-md">
+                {/* Search & Filters */}
+                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-lg">
                   <input 
-                    type="text" placeholder={t.searchPlaceholder} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-950 text-white text-sm border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500"
+                    type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t.searchPlaceholder}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500"
                   />
-                  <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="w-full bg-slate-950 text-white text-xs border border-slate-700 rounded-xl px-3 py-3">
-                    <option value="සියලුම දිස්ත්‍රික්ක">{t.allDistrictsLabel}</option>
-                    {DISTRICTS.filter(d => d !== "සියලුම දිස්ත්‍රික්ක").map((dist) => <option key={dist} value={dist}>{dist}</option>)}
-                  </select>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white">
+                      {SRI_LANKA_DISTRICTS.map(d => <option key={d.id} value={d.id}>{d.si}</option>)}
+                    </select>
+
+                    <select value={selectedVehicle} onChange={(e) => setSelectedVehicle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white">
+                      {VEHICLE_TYPES.map(v => <option key={v.id} value={v.id}>{v.si}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Categories Pills */}
                   <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    {CATEGORIES.map((cat) => (
-                      <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${selectedCategory === cat.id ? "bg-red-600 text-white" : "bg-slate-800 text-slate-300"}`}>
-                        {cat.label}
+                    {SERVICE_CATEGORIES.map(cat => (
+                      <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${selectedCategory === cat.id ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
+                        {cat.si}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <button onClick={() => openGoogleMaps(selectedDistrict === "සියලුම දිස්ත්‍රික්ක" ? "Vehicle Repair Services" : `Car Repair Garage in ${selectedDistrict}`)} className="w-full bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2">
-                  🗺️ {t.mapBtn}
-                </button>
+                {/* Results count & cards */}
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-xs text-slate-400 font-semibold">{t.foundCount} <span className="text-white font-bold">{filteredListings.length}</span></span>
+                </div>
 
-                {/* Results list */}
-                <div className="space-y-3">
-                  {filteredServices.length === 0 ? (
-                    <div className="bg-slate-900 p-8 rounded-2xl text-center border border-slate-800">
-                      <p className="text-slate-400 text-sm mb-3">{t.noResults}</p>
-                      <button onClick={() => setActiveTab('add')} className="bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-xl shadow">{t.addShopMsg}</button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {filteredListings.map(shop => (
+                    <div key={shop.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                      <div>
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 uppercase">{shop.category}</span>
+                          {shop.distanceKm !== null && <span className="text-[11px] font-extrabold text-amber-400">📍 {shop.distanceKm} km</span>}
+                        </div>
+                        <h3 className="text-base font-extrabold text-white">{shop.name}</h3>
+                        <p className="text-xs text-slate-400 mt-1">📍 {shop.district} • {shop.address}</p>
+                        <p className="text-xs text-slate-300 mt-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">{shop.description}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800">
+                        <a href={`tel:${shop.phone}`} className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl text-center shadow">
+                          📞 {shop.phone}
+                        </a>
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs py-2.5 rounded-xl text-center">
+                          🗺️ Map
+                        </a>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* HOTLINES VIEW */}
+            {activeNav === 'hotlines' && (
+              <div className="space-y-3.5">
+                <div className="bg-red-950/50 border border-red-800 p-4 rounded-2xl text-center">
+                  <h2 className="text-base font-bold text-red-400">හදිසි ආපදා සහ ආරක්ෂක අංක</h2>
+                  <p className="text-xs text-slate-300 mt-1">ක්ෂණිකව ඇමතුමක් ලබා ගැනීමට පහත අංක ඔබන්න</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {EMERGENCY_HOTLINES.map(h => (
+                    <a key={h.id} href={`tel:${h.number}`} className={`bg-gradient-to-br ${h.color} p-4 rounded-2xl shadow-lg flex justify-between items-center`}>
+                      <div>
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-black/30 text-white">{h.badge}</span>
+                        <p className="font-bold text-base mt-1 text-white">{h.titleSi}</p>
+                        <p className="text-xs text-white/80">{h.desc}</p>
+                      </div>
+                      <span className="bg-white text-slate-950 font-black text-xl px-4 py-2 rounded-xl shadow shrink-0 ml-3">{h.number}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ADMIN PANEL VIEW */}
+            {activeNav === 'admin' && loggedInAdmin && (
+              <div className="space-y-4">
+                <div className="bg-slate-900 border border-amber-500/40 rounded-2xl p-4 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-sm font-bold text-amber-400">⚙️ Admin Panel</h2>
+                    <p className="text-xs text-slate-400">লොග් වී ඇත්තේ: {loggedInAdmin.name}</p>
+                  </div>
+                  <button onClick={() => { setLoggedInAdmin(null); setActiveNav('directory'); }} className="px-3 py-1.5 rounded-xl bg-red-950 text-red-300 border border-red-800 text-xs font-bold">Logout</button>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                  <h3 className="text-sm font-bold text-white">Pending Verification Requests ({pendingListings.length})</h3>
+                  {pendingListings.length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-4">අනුමැතිය සඳහා බලාපොරොත්තු වන ස්ථාන නොමැත.</p>
                   ) : (
-                    filteredServices.map((s) => (
-                      <div key={s.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 bg-red-600/10 text-red-500 text-[10px] font-extrabold px-3 py-1 rounded-bl-xl border-b border-l border-red-500/20">
-                          {s.category.toUpperCase()}
+                    pendingListings.map(item => (
+                      <div key={item.id} className="bg-slate-950 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                        <div>
+                          <p className="font-bold text-white">{item.name}</p>
+                          <p className="text-slate-400">{item.district} | {item.phone}</p>
                         </div>
-                        <h3 className="font-bold text-white text-base mt-2">{s.name}</h3>
-                        <p className="text-xs text-slate-400 mt-1">{s.desc}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-700">📍 {s.district}</span>
-                          <span className="text-[11px] text-slate-500">{s.address}</span>
-                        </div>
-                        <div className="flex gap-2 mt-4">
-                          <a href={`tel:${s.phone}`} className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-3 rounded-xl text-center shadow-lg">
-                            📞 ඇමතුම්
-                          </a>
-                          <button onClick={() => openGoogleMaps(`${s.name} ${s.address}`)} className="bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl border border-slate-700 shadow">
-                            🗺️ Map
-                          </button>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold">Approve</button>
+                          <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold">මකන්න</button>
                         </div>
                       </div>
                     ))
@@ -247,44 +431,73 @@
               </div>
             )}
 
-            {activeTab === 'emergency' && (
-              <div className="space-y-4">
-                <div className="bg-red-950/50 border border-red-800 p-5 rounded-2xl text-center shadow-inner">
-                  <h2 className="text-lg font-bold text-red-400">🚨 හදිසි අංක</h2>
-                  <p className="text-xs text-slate-300 mt-1">ක්ෂණිකව ඇමතුමක් ලබා ගැනීමට ඔබන්න</p>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
-                  <a href="tel:119" className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-lg flex justify-between items-center">
-                    <div><p className="font-bold text-base text-white">පොලිස් හදිසි ඇමතුම්</p></div>
-                    <span className="bg-white text-red-700 font-black text-xl px-4 py-2 rounded-xl">119</span>
-                  </a>
-                  <a href="tel:1990" className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-2xl shadow-lg flex justify-between items-center">
-                    <div><p className="font-bold text-base text-white">සුවසැරිය ගිලන් රථ</p></div>
-                    <span className="bg-white text-emerald-700 font-black text-xl px-4 py-2 rounded-xl">1990</span>
-                  </a>
-                  <a href="tel:1969" className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 rounded-2xl shadow-lg flex justify-between items-center">
-                    <div><p className="font-bold text-base text-white">අධිවේගී මාර්ග සහන</p></div>
-                    <span className="bg-white text-blue-700 font-black text-xl px-4 py-2 rounded-xl">1969</span>
-                  </a>
-                </div>
-              </div>
-            )}
+          </div>
 
-            {activeTab === 'add' && (
-              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg">
-                <h2 className="text-base font-bold text-red-500 mb-4 text-center">➕ ෂොප් එකක් එකතු කරන්න</h2>
-                <p className="text-xs text-slate-400 text-center mb-4">ඔබගේ ආයතනය මෙහි ඇතුළත් කර Admin අනුමැතියට යොමු කරන්න.</p>
-                <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); alert('ඔබගේ ෂොප් එක සාර්ථකව යොමු කරන ලදී! අනුමැතියෙන් පසු ප්‍රදර්ශනය කෙරේ.'); setActiveTab('services'); }}>
-                  <input type="text" placeholder="ආයතනයේ නම" className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white" required />
-                  <input type="text" placeholder="දුරකථන අංකය" className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white" required />
-                  <input type="text" placeholder="ලිපිනය සහ නගරය" className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white" required />
-                  <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg mt-2 transition">
-                    🚀 යොමු කරන්න (Submit)
-                  </button>
+          {/* ADD SHOP MODAL */}
+          {showAddModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-5 relative my-auto">
+                <button onClick={() => setShowAddModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white">✕</button>
+                <h2 className="text-base font-black text-red-500 mb-1">{t.addTitle}</h2>
+                <p className="text-xs text-slate-400 mb-4">{t.addSubtitle}</p>
+
+                {formToast && <div className="mb-3 p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 text-xs font-bold">{formToast}</div>}
+
+                <form onSubmit={handleAddSubmit} className="space-y-3 text-xs">
+                  <input type="text" required value={formName} onChange={e => setFormName(e.target.value)} placeholder="ආයතනයේ නම (උදා: Kandy Auto Care)" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <select value={formCategory} onChange={e => setFormCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
+                      {SERVICE_CATEGORIES.filter(c => c.id !== 'all').map(c => <option key={c.id} value={c.id}>{c.si}</option>)}
+                    </select>
+                    <select value={formDistrict} onChange={e => setFormDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
+                      {SRI_LANKA_DISTRICTS.filter(d => d.id !== 'all').map(d => <option key={d.id} value={d.id}>{d.si}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">සේවා සපයන වාහන වර්ග:</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {VEHICLE_TYPES.filter(v => v.id !== 'all').map(v => {
+                        const checked = formVehicles.includes(v.id);
+                        return (
+                          <button type="button" key={v.id} onClick={() => toggleFormVehicle(v.id)} className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${checked ? 'bg-red-600 text-white border-red-500' : 'bg-slate-950 text-slate-400 border-slate-800'}`}>
+                            {checked ? '✓ ' : '+ '}{v.si}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <input type="text" required value={formAddress} onChange={e => setFormAddress(e.target.value)} placeholder="ලිපිනය (උදා: නුවර පාර, පේරාදෙණිය)" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                  <input type="tel" required value={formPhone} onChange={e => setFormPhone(e.target.value)} placeholder="දුරකථන අංකය (උදා: 0812233445)" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                  <textarea rows={2} value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="සේවා විස්තරය..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+
+                  <button type="submit" className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg transition">{t.submitBtn}</button>
                 </form>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* ADMIN LOGIN MODAL */}
+          {showAdminModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 relative">
+                <button onClick={() => setShowAdminModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white">✕</button>
+                <h3 className="text-base font-black text-white mb-1">Admin Security Portal</h3>
+                <p className="text-xs text-slate-400 mb-4">පරිපාලක විද්‍යුත් තැපෑල සහ මුරපදය ලබා දෙන්න.</p>
+
+                {adminAuthError && <div className="mb-3 p-2.5 rounded-xl bg-red-950 border border-red-500 text-red-200 text-xs font-semibold">{adminAuthError}</div>}
+
+                <form onSubmit={handleAdminLogin} className="space-y-3 text-xs">
+                  <input type="email" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="Admin Email" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                  <input type="password" required value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                  <button type="submit" className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow">Login</button>
+                </form>
+              </div>
+            </div>
+          )}
+
         </div>
       );
     }
