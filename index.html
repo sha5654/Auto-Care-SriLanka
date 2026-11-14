@@ -15,7 +15,7 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24 overflow-x-hidden w-full">
   <div id="root" class="flex items-center justify-center min-h-screen text-slate-400 font-bold text-sm">
     <div class="animate-pulse flex flex-col items-center gap-3">
       <div class="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
@@ -229,7 +229,7 @@
       };
 
       const [currentUser, setCurrentUser] = useState(() => {
-        try { const s = localStorage.getItem('autocare_sl_user_v11'); return s ? JSON.parse(s) : null; } catch { return null; }
+        try { const s = localStorage.getItem('autocare_sl_user_v12'); return s ? JSON.parse(s) : null; } catch { return null; }
       });
       const [userAuthMode, setUserAuthMode] = useState('signin');
       const [userNameInput, setUserNameInput] = useState('');
@@ -242,13 +242,13 @@
 
       const completeUserSignIn = (userObj) => {
         setCurrentUser(userObj);
-        try { localStorage.setItem('autocare_sl_user_v11', JSON.stringify(userObj)); } catch {}
+        try { localStorage.setItem('autocare_sl_user_v12', JSON.stringify(userObj)); } catch {}
       };
 
       const handleUserSignOut = () => {
         setCurrentUser(null);
         setLoggedInAdmin(null);
-        try { localStorage.removeItem('autocare_sl_user_v11'); } catch {}
+        try { localStorage.removeItem('autocare_sl_user_v12'); } catch {}
       };
 
       const handleGoogleSubmit = (e) => {
@@ -272,12 +272,12 @@
         }
 
         let storedUsers = [];
-        try { storedUsers = JSON.parse(localStorage.getItem('autocare_sl_users_v11') || '[]'); } catch {}
+        try { storedUsers = JSON.parse(localStorage.getItem('autocare_sl_users_v12') || '[]'); } catch {}
 
         if (userAuthMode === 'signup') {
           if (!userNameInput.trim()) { setUserAuthError('නම ඇතුළත් කරන්න.'); return; }
           const newUser = { name: userNameInput.trim(), email, pass };
-          try { localStorage.setItem('autocare_sl_users_v11', JSON.stringify([...storedUsers, newUser])); } catch {}
+          try { localStorage.setItem('autocare_sl_users_v12', JSON.stringify([...storedUsers, newUser])); } catch {}
           completeUserSignIn({ name: newUser.name, email: newUser.email, provider: 'email' });
         } else {
           const found = storedUsers.find(u => u.email === email && u.pass === pass);
@@ -289,15 +289,15 @@
       const [activeNav, setActiveNav] = useState('directory');
       
       const [customLogoUrl, setCustomLogoUrl] = useState(() => {
-        try { return localStorage.getItem('autocare_sl_logo_v11') || ''; } catch { return ''; }
+        try { return localStorage.getItem('autocare_sl_logo_v12') || ''; } catch { return ''; }
       });
       const [logoStatusMsg, setLogoStatusMsg] = useState('');
 
       const handleSaveLogo = (dataUrl) => {
         setCustomLogoUrl(dataUrl);
         try {
-          if (dataUrl) { localStorage.setItem('autocare_sl_logo_v11', dataUrl); setLogoStatusMsg('Logo එක සාර්ථකව වෙනස් විය!'); }
-          else { localStorage.removeItem('autocare_sl_logo_v11'); setLogoStatusMsg('Default Logo එකට මාරු කරන ලදී.'); }
+          if (dataUrl) { localStorage.setItem('autocare_sl_logo_v12', dataUrl); setLogoStatusMsg('Logo එක සාර්ථකව වෙනස් විය!'); }
+          else { localStorage.removeItem('autocare_sl_logo_v12'); setLogoStatusMsg('Default Logo එකට මාරු කරන ලදී.'); }
         } catch {}
         setTimeout(() => setLogoStatusMsg(''), 3000);
       };
@@ -311,11 +311,11 @@
       };
 
       const [listings, setListings] = useState(() => {
-        try { const s = localStorage.getItem('autocare_sl_listings_v11'); return s ? JSON.parse(s) : INITIAL_LISTINGS; } catch { return INITIAL_LISTINGS; }
+        try { const s = localStorage.getItem('autocare_sl_listings_v12'); return s ? JSON.parse(s) : INITIAL_LISTINGS; } catch { return INITIAL_LISTINGS; }
       });
 
       useEffect(() => {
-        try { localStorage.setItem('autocare_sl_listings_v11', JSON.stringify(listings)); } catch {}
+        try { localStorage.setItem('autocare_sl_listings_v12', JSON.stringify(listings)); } catch {}
       }, [listings]);
 
       const [searchQuery, setSearchQuery] = useState('');
@@ -475,14 +475,14 @@
 
       if (!currentUser) {
         return (
-          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4">
+          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4 w-full overflow-x-hidden">
             <div className="flex justify-end pt-2">
               <button onClick={handleCycleLanguage} className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-bold flex items-center gap-1.5">
                 <span>🌐 {lang === 'si' ? 'සිංහල' : lang === 'en' ? 'EN' : 'தமிழ்'}</span>
               </button>
             </div>
 
-            <div className="max-w-md w-full mx-auto my-auto space-y-4">
+            <div className="max-w-sm w-full mx-auto my-auto space-y-4">
               <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
                 <AppLogoDisplay customLogoUrl={customLogoUrl} className="w-16 h-16 mx-auto rounded-2xl shadow-lg" />
                 <h1 className="text-xl font-black text-white">AUTO CARE <span className="text-red-500">SRI LANKA</span></h1>
@@ -545,101 +545,99 @@
       }
 
       return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
+        <div className="min-h-screen bg-slate-950 text-slate-100 pb-20 w-full overflow-x-hidden">
           
-          <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 px-4 py-2.5 shadow-lg">
-            {/* RESPONSIVE WIDE CONTAINER FOR DESKTOP & MOBILE */}
-            <div className="max-w-3xl mx-auto flex items-center justify-between gap-2">
+          <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 px-3 py-2.5 shadow-lg w-full">
+            <div className="max-w-md mx-auto flex items-center justify-between gap-2">
               <div onClick={() => setActiveNav('directory')} className="flex items-center gap-2 cursor-pointer min-w-0">
                 <AppLogoDisplay customLogoUrl={customLogoUrl} className="w-9 h-9 rounded-xl shadow shrink-0" />
                 <div className="min-w-0">
-                  <h1 className="text-xs sm:text-sm font-black text-white truncate">AUTO CARE <span className="text-red-500">SRI LANKA</span></h1>
+                  <h1 className="text-xs font-black text-white truncate">AUTO CARE <span className="text-red-500">SRI LANKA</span></h1>
                   <p className="text-[9px] text-slate-400 truncate">{currentUser.name}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 shrink-0">
                 <button onClick={handleCycleLanguage} className="px-2.5 py-1 rounded-lg bg-slate-800 text-white text-[10px] font-extrabold flex items-center gap-1">
                   <span>🌐 {lang === 'si' ? 'සිංහල' : lang === 'en' ? 'EN' : 'தமிழ்'}</span>
                 </button>
-                <button onClick={handleUserSignOut} className="px-2.5 py-1 rounded-lg bg-red-950 text-red-300 text-[10px] font-bold">Out</button>
+                <button onClick={handleUserSignOut} className="px-2 py-1 rounded-lg bg-red-950 text-red-300 text-[10px] font-bold">Out</button>
               </div>
             </div>
           </header>
 
-          {/* RESPONSIVE WIDE CONTAINER FOR CONTENT */}
-          <div className="p-3 sm:p-6 space-y-4 max-w-3xl mx-auto">
+          <div className="p-3 space-y-3 max-w-md mx-auto w-full">
             
-            <div className={`p-3 rounded-xl border flex items-center justify-between gap-2 text-xs sm:text-sm ${userCoords ? 'bg-emerald-950/50 border-emerald-800 text-emerald-200' : 'bg-blue-950/50 border-blue-800 text-blue-200'}`}>
+            <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 text-xs ${userCoords ? 'bg-emerald-950/50 border-emerald-800 text-emerald-200' : 'bg-blue-950/50 border-blue-800 text-blue-200'}`}>
               <span className="font-semibold truncate">{userCoords ? t.gpsActive : t.gpsPrompt}</span>
-              <button onClick={handleEnableGPS} className={`px-3 py-1.5 rounded-lg text-white font-bold shrink-0 ${userCoords ? 'bg-emerald-600' : 'bg-blue-600'}`}>
+              <button onClick={handleEnableGPS} className={`px-2.5 py-1 rounded-lg text-white font-bold shrink-0 ${userCoords ? 'bg-emerald-600' : 'bg-blue-600'}`}>
                 {userCoords ? 'GPS Update' : 'GPS On'}
               </button>
             </div>
 
             {activeNav === 'directory' && (
-              <div className="space-y-3">
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
+              <div className="space-y-3 w-full">
+                <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800 space-y-2.5 w-full">
                   <input 
                     type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t.searchPlaceholder}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-red-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500"
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <select value={selectedDistrict} onChange={e => setSelectedDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white">
-                      <option value="all">{lang === 'si' ? 'සියලුම දිස්ත්‍රික්ක (25)' : lang === 'en' ? 'All Districts' : 'அனைத்து மாவட்டங்களும்'}</option>
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    <select value={selectedDistrict} onChange={e => setSelectedDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-xs text-white truncate">
+                      <option value="all">{lang === 'si' ? 'දිස්ත්‍රික්ක 25' : lang === 'en' ? 'All Districts' : 'மாவட்டம்'}</option>
                       {SRI_LANKA_DISTRICTS.map(d => <option key={d.id} value={d.id}>{d[lang] || d.si}</option>)}
                     </select>
 
-                    <select value={selectedVehicle} onChange={e => setSelectedVehicle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white">
-                      <option value="all">{lang === 'si' ? 'සියලුම වාහන' : lang === 'en' ? 'All Vehicles' : 'அனைத்து'}</option>
+                    <select value={selectedVehicle} onChange={e => setSelectedVehicle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-xs text-white truncate">
+                      <option value="all">{lang === 'si' ? 'සියලුම වාහන' : lang === 'en' ? 'All Vehicles' : 'வாகனங்கள்'}</option>
                       {VEHICLE_TYPES.map(v => <option key={v.id} value={v.id}>{v[lang] || v.si}</option>)}
                     </select>
                   </div>
 
-                  <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                    <button onClick={() => setSelectedCategory('all')} className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition ${selectedCategory === 'all' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 w-full">
+                    <button onClick={() => setSelectedCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap shrink-0 transition ${selectedCategory === 'all' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
                       {lang === 'si' ? 'සියලුම සේවා' : lang === 'en' ? 'All Services' : 'அனைத்து'}
                     </button>
                     {SERVICE_CATEGORIES.map(cat => (
-                      <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition ${selectedCategory === cat.id ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
+                      <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap shrink-0 transition ${selectedCategory === cat.id ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300'}`}>
                         {cat[lang] || cat.si}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <button onClick={() => openGoogleMaps(selectedDistrict === 'all' ? 'Car Repair Garage Sri Lanka' : `Car Repair Garage in ${selectedDistrict}`)} className="w-full bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs sm:text-sm font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                <button onClick={() => openGoogleMaps(selectedDistrict === 'all' ? 'Car Repair Garage Sri Lanka' : `Car Repair Garage in ${selectedDistrict}`)} className="w-full bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm">
                   {t.mapBtn}
                 </button>
 
-                <div className="flex justify-between items-center px-1 text-xs sm:text-sm text-slate-400">
+                <div className="flex justify-between items-center px-1 text-xs text-slate-400">
                   <span>{t.foundCount} <strong className="text-white">{filteredListings.length}</strong></span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 w-full">
                   {filteredListings.map(shop => (
-                    <div key={shop.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5 relative">
-                      <div className="flex justify-between items-start">
-                        <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-400 uppercase">{shop.category}</span>
-                        {shop.distanceKm !== null && <span className="text-xs font-bold text-amber-400">📍 {shop.distanceKm} km</span>}
+                    <div key={shop.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2 w-full break-words">
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-400 uppercase">{shop.category}</span>
+                        {shop.distanceKm !== null && <span className="text-[11px] font-bold text-amber-400 shrink-0">📍 {shop.distanceKm} km</span>}
                       </div>
-                      <h3 className="text-sm sm:text-base font-extrabold text-white">{shop.name}</h3>
-                      <p className="text-xs text-slate-400">📍 {shop.district} ({shop.city}) • {shop.address}</p>
-                      <p className="text-xs sm:text-sm text-slate-300 bg-slate-950 p-2.5 rounded-xl">{shop.description}</p>
+                      <h3 className="text-sm font-extrabold text-white leading-snug">{shop.name}</h3>
+                      <p className="text-[11px] text-slate-400">📍 {shop.district} ({shop.city}) • {shop.address}</p>
+                      <p className="text-[11px] text-slate-300 bg-slate-950 p-2 rounded-xl">{shop.description}</p>
                       
-                      <div className="flex flex-wrap gap-2 pt-1 items-center justify-between">
-                        <div className="flex flex-wrap gap-2 flex-1">
-                          <a href={`tel:${shop.phone}`} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm py-2.5 px-3 rounded-xl text-center shadow min-w-[100px]">📞 {shop.phone}</a>
-                          {shop.whatsapp && <a href={`https://wa.me/${shop.whatsapp}`} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl text-center">💬 WA</a>}
-                          <a href={shop.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ' ' + shop.city)}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl text-center flex items-center gap-1 shadow">
+                      <div className="flex flex-wrap gap-1.5 pt-1 items-center justify-between w-full">
+                        <div className="flex flex-wrap gap-1.5 flex-1">
+                          <a href={`tel:${shop.phone}`} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2 px-2 rounded-xl text-center shadow min-w-[85px]">📞 {shop.phone}</a>
+                          {shop.whatsapp && <a href={`https://wa.me/${shop.whatsapp}`} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center">💬 WA</a>}
+                          <a href={shop.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ' ' + shop.city)}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center flex items-center gap-1 shadow">
                             🗺️ Map
                           </a>
-                          {shop.socialLink && <a href={shop.socialLink} target="_blank" rel="noopener noreferrer" className="bg-indigo-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl text-center">🔗 Social</a>}
+                          {shop.socialLink && <a href={shop.socialLink} target="_blank" rel="noopener noreferrer" className="bg-indigo-600 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center">🔗 Social</a>}
                         </div>
 
                         {loggedInAdmin && (
-                          <button onClick={() => handleDelete(shop.id)} className="bg-red-950 text-red-400 border border-red-800 text-xs font-bold px-3 py-2.5 rounded-xl">
+                          <button onClick={() => handleDelete(shop.id)} className="bg-red-950 text-red-400 border border-red-800 text-[10px] font-bold px-2.5 py-2 rounded-xl">
                             🗑️ Delete
                           </button>
                         )}
@@ -651,13 +649,13 @@
             )}
 
             {activeNav === 'hotlines' && (
-              <div className="space-y-3">
-                <div className="bg-red-950/50 border border-red-800 p-4 rounded-2xl text-center"><h2 className="text-sm sm:text-base font-bold text-red-400">හදිසි ආපදා අංක</h2></div>
-                <div className="space-y-3">
+              <div className="space-y-3 w-full">
+                <div className="bg-red-950/50 border border-red-800 p-3.5 rounded-2xl text-center"><h2 className="text-sm font-bold text-red-400">හදිසි ආපදා අංක</h2></div>
+                <div className="space-y-2.5 w-full">
                   {EMERGENCY_HOTLINES.map(h => (
-                    <a key={h.id} href={`tel:${h.number}`} className={`bg-gradient-to-br ${h.color} p-4 rounded-2xl shadow flex justify-between items-center text-white`}>
-                      <div><p className="font-bold text-sm sm:text-base">{h.titleSi}</p></div>
-                      <span className="bg-white text-slate-950 font-black text-base sm:text-lg px-3.5 py-2 rounded-xl">{h.number}</span>
+                    <a key={h.id} href={`tel:${h.number}`} className={`bg-gradient-to-br ${h.color} p-3.5 rounded-2xl shadow flex justify-between items-center text-white gap-2`}>
+                      <div className="min-w-0"><p className="font-bold text-xs sm:text-sm">{h.titleSi}</p></div>
+                      <span className="bg-white text-slate-950 font-black text-base px-3 py-1.5 rounded-xl shrink-0">{h.number}</span>
                     </a>
                   ))}
                 </div>
@@ -665,53 +663,53 @@
             )}
 
             {activeNav === 'admin' && loggedInAdmin && (
-              <div className="space-y-3">
-                <div className="bg-slate-900 border border-amber-500/40 rounded-2xl p-4 flex justify-between items-center">
-                  <div><h2 className="text-xs sm:text-sm font-bold text-amber-400">⚙️ Admin Panel</h2></div>
-                  <button onClick={() => setActiveNav('directory')} className="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-xs">Back</button>
+              <div className="space-y-3 w-full">
+                <div className="bg-slate-900 border border-amber-500/40 rounded-2xl p-3.5 flex justify-between items-center">
+                  <div><h2 className="text-xs font-bold text-amber-400">⚙️ Admin Panel</h2></div>
+                  <button onClick={() => setActiveNav('directory')} className="px-2.5 py-1 rounded-lg bg-slate-800 text-white text-xs">Back</button>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 text-xs sm:text-sm">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 text-xs">
                   <h3 className="font-bold text-white">Logo වෙනස් කිරීම (Admin Logo)</h3>
                   {logoStatusMsg && <p className="text-emerald-400 font-bold">{logoStatusMsg}</p>}
                   <div className="flex items-center gap-3">
                     <AppLogoDisplay customLogoUrl={customLogoUrl} className="w-12 h-12 rounded-xl border border-slate-700 shrink-0" />
-                    <label className="px-3.5 py-2 rounded-xl bg-red-600 text-white font-bold cursor-pointer">
+                    <label className="px-3 py-1.5 rounded-xl bg-red-600 text-white font-bold cursor-pointer">
                       Upload Logo
                       <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                     </label>
                   </div>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 text-xs sm:text-sm">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 text-xs">
                   <h3 className="font-bold text-amber-400">අනුමැතිය අපේක්ෂිත ෂොප්ස් (Pending: {pendingListings.length})</h3>
                   {pendingListings.length === 0 ? (
                     <p className="text-slate-500 text-center py-2">අනුමත කිරීමට නව ෂොප් නොමැත.</p>
                   ) : (
                     pendingListings.map(item => (
-                      <div key={item.id} className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <div>
-                          <p className="font-bold text-white">{item.name}</p>
-                          <p className="text-[11px] text-slate-400">{item.district} ({item.city}) | {item.phone}</p>
+                      <div key={item.id} className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center gap-2">
+                        <div className="min-w-0">
+                          <p className="font-bold text-white truncate">{item.name}</p>
+                          <p className="text-[10px] text-slate-400">{item.district} ({item.city}) | {item.phone}</p>
                         </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold">Approve</button>
-                          <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold">Delete</button>
+                        <div className="flex gap-1.5 shrink-0">
+                          <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 text-white px-2 py-1 rounded-lg font-bold">Approve</button>
+                          <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">Delete</button>
                         </div>
                       </div>
                     ))
                   )}
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 text-xs sm:text-sm">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 text-xs">
                   <h3 className="font-bold text-white">ප්‍රදර්ශනය වන සියලුම ෂොප්ස් (Active: {approvedListings.length})</h3>
                   {approvedListings.map(item => (
-                    <div key={item.id} className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                      <div>
-                        <p className="font-bold text-white">{item.name}</p>
-                        <p className="text-[11px] text-slate-400">{item.district} | {item.phone}</p>
+                    <div key={item.id} className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center gap-2">
+                      <div className="min-w-0">
+                        <p className="font-bold text-white truncate">{item.name}</p>
+                        <p className="text-[10px] text-slate-400">{item.district} | {item.phone}</p>
                       </div>
-                      <button onClick={() => handleDelete(item.id)} className="bg-red-950 text-red-400 border border-red-800 px-3 py-1.5 rounded-lg font-bold">Delete</button>
+                      <button onClick={() => handleDelete(item.id)} className="bg-red-950 text-red-400 border border-red-800 px-2.5 py-1 rounded-lg font-bold shrink-0">Delete</button>
                     </div>
                   ))}
                 </div>
@@ -719,62 +717,62 @@
             )}
           </div>
 
-          <nav className="fixed bottom-0 inset-x-0 z-40 bg-slate-900 border-t border-slate-800 px-2 py-2">
-            <div className="grid grid-cols-4 gap-1 max-w-3xl mx-auto text-center">
-              <button onClick={() => setActiveNav('directory')} className={`py-2 rounded-xl text-xs font-bold ${activeNav === 'directory' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>🔍 සේවා</button>
-              <button onClick={() => setActiveNav('hotlines')} className={`py-2 rounded-xl text-xs font-bold ${activeNav === 'hotlines' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>🚨 හදිසි</button>
-              <button onClick={() => setShowAddModal(true)} className="py-2 rounded-xl text-xs font-bold text-slate-300">➕ Shop</button>
-              <button onClick={() => { if (loggedInAdmin) setActiveNav('admin'); else setShowAdminModal(true); }} className={`py-2 rounded-xl text-xs font-bold ${activeNav === 'admin' ? 'bg-amber-500 text-slate-950' : 'text-amber-400'}`}>⚙️ Admin</button>
+          <nav className="fixed bottom-0 inset-x-0 z-40 bg-slate-900 border-t border-slate-800 px-2 py-1.5 w-full">
+            <div className="grid grid-cols-4 gap-1 max-w-md mx-auto text-center">
+              <button onClick={() => setActiveNav('directory')} className={`py-1.5 rounded-xl text-[10px] font-bold ${activeNav === 'directory' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>🔍 සේවා</button>
+              <button onClick={() => setActiveNav('hotlines')} className={`py-1.5 rounded-xl text-[10px] font-bold ${activeNav === 'hotlines' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>🚨 හදිසි</button>
+              <button onClick={() => setShowAddModal(true)} className="py-1.5 rounded-xl text-[10px] font-bold text-slate-300">➕ Shop</button>
+              <button onClick={() => { if (loggedInAdmin) setActiveNav('admin'); else setShowAdminModal(true); }} className={`py-1.5 rounded-xl text-[10px] font-bold ${activeNav === 'admin' ? 'bg-amber-500 text-slate-950' : 'text-amber-400'}`}>⚙️ Admin</button>
             </div>
           </nav>
 
           {showAddModal && (
-            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-5 relative my-auto text-xs sm:text-sm space-y-3.5">
+            <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-4 relative my-auto text-xs space-y-2.5">
                 <button onClick={() => setShowAddModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white">✕</button>
-                <h2 className="text-sm sm:text-base font-black text-red-500">{t.addShopTitle}</h2>
+                <h2 className="text-sm font-black text-red-500 pr-6">{t.addShopTitle}</h2>
 
-                {formToast && <div className="p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold">{formToast}</div>}
+                {formToast && <div className="p-2.5 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold">{formToast}</div>}
 
-                <form onSubmit={handleAddSubmit} className="space-y-3">
+                <form onSubmit={handleAddSubmit} className="space-y-2.5">
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">{t.shopNameLabel}</label>
-                    <input type="text" required value={formName} onChange={e => setFormName(e.target.value)} placeholder="උදා: Kandy Auto Care" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                    <input type="text" required value={formName} onChange={e => setFormName(e.target.value)} placeholder="උදා: Kandy Auto Care" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">{t.districtLabel}</label>
-                      <select value={formDistrict} onChange={e => setFormDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
+                      <select value={formDistrict} onChange={e => setFormDistrict(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white">
                         {SRI_LANKA_DISTRICTS.map(d => <option key={d.id} value={d.id}>{d[lang] || d.si}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">{t.cityLabel}</label>
-                      <input type="text" required value={formCity} onChange={e => setFormCity(e.target.value)} placeholder="උදා: පේරාදෙණිය" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                      <input type="text" required value={formCity} onChange={e => setFormCity(e.target.value)} placeholder="උදා: පේරාදෙණිය" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">සේවා කාණ්ඩය</label>
-                      <select value={formCategory} onChange={e => setFormCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white">
+                      <select value={formCategory} onChange={e => setFormCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white">
                         {SERVICE_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c[lang] || c.si}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">{t.phoneLabel}</label>
-                      <input type="tel" required value={formPhone} onChange={e => setFormPhone(e.target.value)} placeholder="0771234567" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                      <input type="tel" required value={formPhone} onChange={e => setFormPhone(e.target.value)} placeholder="0771234567" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">{t.vehTypeLabel}</label>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1">
                       {VEHICLE_TYPES.map(v => {
                         const checked = formVehicles.includes(v.id);
                         return (
-                          <button type="button" key={v.id} onClick={() => toggleFormVehicle(v.id)} className={`px-2.5 py-1.5 rounded-lg text-xs font-bold border ${checked ? 'bg-red-600 text-white border-red-500' : 'bg-slate-950 text-slate-400 border-slate-800'}`}>
+                          <button type="button" key={v.id} onClick={() => toggleFormVehicle(v.id)} className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${checked ? 'bg-red-600 text-white border-red-500' : 'bg-slate-950 text-slate-400 border-slate-800'}`}>
                             {checked ? '✓ ' : '+ '}{v[lang] || v.si}
                           </button>
                         );
@@ -784,31 +782,31 @@
 
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">{t.addressLabel}</label>
-                    <input type="text" required value={formAddress} onChange={e => setFormAddress(e.target.value)} placeholder="ප්‍රධාන වීදිය, නගරය" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                    <input type="text" required value={formAddress} onChange={e => setFormAddress(e.target.value)} placeholder="ප්‍රධාන වීදිය, නගරය" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">{t.waLabel}</label>
-                      <input type="text" value={formWhatsapp} onChange={e => setFormWhatsapp(e.target.value)} placeholder="94771234567" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                      <input type="text" value={formWhatsapp} onChange={e => setFormWhatsapp(e.target.value)} placeholder="94771234567" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                     </div>
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">{t.mapLinkL}</label>
-                      <input type="url" required value={formMapLink} onChange={e => setFormMapLink(e.target.value)} placeholder="https://maps.google.com/..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                      <input type="url" required value={formMapLink} onChange={e => setFormMapLink(e.target.value)} placeholder="https://maps.google.com/..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">{t.socialLabel}</label>
-                    <input type="url" value={formSocialLink} onChange={e => setFormSocialLink(e.target.value)} placeholder="Facebook / TikTok link" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                    <input type="url" value={formSocialLink} onChange={e => setFormSocialLink(e.target.value)} placeholder="Facebook / TikTok link" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                   </div>
 
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">{t.descLabel}</label>
-                    <textarea rows={2} value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="විස්තරය..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
+                    <textarea rows={2} value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="විස්තරය..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
                   </div>
 
-                  <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 rounded-xl shadow">{t.submitBtn}</button>
+                  <button type="submit" className="w-full bg-red-600 text-white font-bold py-2.5 rounded-xl shadow">{t.submitBtn}</button>
                 </form>
               </div>
             </div>
@@ -816,14 +814,14 @@
 
           {showAdminModal && (
             <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 relative text-xs sm:text-sm space-y-3">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 relative text-xs space-y-3">
                 <button onClick={() => setShowAdminModal(false)} className="absolute right-4 top-4 text-slate-400">✕</button>
                 <h3 className="text-sm font-black text-white">Admin Security Portal</h3>
                 {adminAuthError && <div className="p-2 rounded-xl bg-red-950 text-red-200">{adminAuthError}</div>}
-                <form onSubmit={handleAdminLogin} className="space-y-3">
-                  <input type="email" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="Admin Email" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  <input type="password" required value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white" />
-                  <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 rounded-xl">Login</button>
+                <form onSubmit={handleAdminLogin} className="space-y-2.5">
+                  <input type="email" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="Admin Email" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
+                  <input type="password" required value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white" />
+                  <button type="submit" className="w-full bg-red-600 text-white font-bold py-2.5 rounded-xl">Login</button>
                 </form>
               </div>
             </div>
